@@ -15,7 +15,7 @@ A Golang serverless Discord slash command helper library written for Vercel Serv
 * [Discord](https://discord.com/)
 * [Discord Application](https://discord.com/developers/applications)
 
-### Developing Slash Commands
+### Usage
 todo
 
 ## TODOs
