@@ -1,5 +1,5 @@
 # disgoslash
-A serverless Discord slash command bot powered by Vercel written in Golang
+A Golang serverless Discord slash command helper library written for Vercel Serverless Functions
 
 ![tests](https://github.com/wafer-bw/disgoslash/workflows/tests/badge.svg)
 ![lint](https://github.com/wafer-bw/disgoslash/workflows/lint/badge.svg)
@@ -10,41 +10,10 @@ A serverless Discord slash command bot powered by Vercel written in Golang
 ## Getting Started
 
 ### Prerequisites
-#### Primary
 * [Golang](https://golang.org/dl/)
 * [Vercel](https://vercel.com/)
 * [Discord](https://discord.com/)
 * [Discord Application](https://discord.com/developers/applications)
-
-#### Dev
-* [golangci-lint](https://golangci-lint.run/usage/install/#local-installation)
-* [mockery](https://github.com/vektra/mockery)
-
-### Setup
-    ```sh
-    git clone git@github.com:wafer-bw/disgoslash.git
-    go get -t -v -d ./...
-    ```
-
-### Usage (POSIX)
-```sh
-# Get Dependencies
-make get
-# Tidy go.mod
-make tidy
-# Run tests
-make test
-# Run verbose tests
-make testv
-# Run linting
-make lint
-# Run formatting
-make fmt
-# Regenerate mocks
-make mocks
-# Run all the things you should before you make a commit
-make precommit
-```
 
 ### Developing Slash Commands
 todo
