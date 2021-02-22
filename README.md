@@ -24,6 +24,12 @@ todo
     * EditGuildApplicationCommand
 * `models`
     * Finish Guild Model
+* Package
+    * Collapse?
+    * `doc.go`
+    * Header comments
+    * Examples
+    * Stable Version Release
 
 ## References
 * [discordgo](https://github.com/bwmarrin/discordgo) - ed25519 auth

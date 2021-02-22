@@ -27,7 +27,7 @@ func New(deps *Deps, conf *config.Config) Authorization {
 	return &impl{deps: deps, conf: conf}
 }
 
-// Verify verifies that requests from discord are authorized using ed25519
+// Verify that the request from Discord is authorized using ed25519
 // https://discord.com/developers/docs/interactions/slash-commands#security-and-authorization
 func (impl *impl) Verify(rawBody []byte, headers http.Header) bool {
 	signature := headers.Get("x-signature-ed25519")
