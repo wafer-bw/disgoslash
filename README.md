@@ -25,9 +25,7 @@ todo
 * `models`
     * Finish Guild Model
 * Package
-    * Update test exclusion pattern in makefile `test*` commands
-    * MAYBE Make verify a function not an interface
-    * Remove env vars entirely if possible
+    * See if auth can take a string instead of the creds object
     * Coverage pass
     * `doc.go`
     * Header comments
