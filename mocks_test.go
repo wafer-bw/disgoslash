@@ -1,4 +1,4 @@
-package mocks
+package disgoslash
 
 import (
 	"io/ioutil"

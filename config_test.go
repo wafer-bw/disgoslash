@@ -1,24 +1,15 @@
-package config
+package disgoslash
 
 import (
-	"io/ioutil"
-	"log"
-	"os"
 	"testing"
 
 	"github.com/stretchr/testify/require"
 )
 
-func TestMain(m *testing.M) {
-	log.SetOutput(ioutil.Discard)
-	exitCode := m.Run()
-	os.Exit(exitCode)
-}
-
-func TestNew(t *testing.T) {
+func TestNewConfig(t *testing.T) {
 	t.Run("success", func(t *testing.T) {
 		require.NotPanics(t, func() {
-			New(&Credentials{
+			NewConfig(&Credentials{
 				Token:     "a",
 				ClientID:  "b",
 				PublicKey: "c",
@@ -26,12 +17,12 @@ func TestNew(t *testing.T) {
 		})
 	})
 	t.Run("failure/panics", func(t *testing.T) {
-		require.Panics(t, func() { New(nil) })
+		require.Panics(t, func() { NewConfig(nil) })
 	})
 }
 
 func TestFindBlankEnvVars(t *testing.T) {
-	blanks := findBlankEnvVars(EnvVars{ClientID: "123abc"})
+	blanks := findBlankEnvVars(envVars{ClientID: "123abc"})
 	for _, b := range blanks {
 		require.NotEqual(t, "ClientID", b)
 	}
@@ -42,5 +33,5 @@ func TestGetEnvVars(t *testing.T) {
 }
 
 func TestHaveNoBlankEnvVars(t *testing.T) {
-	require.Panics(t, func() { ensureNoBlankEnvVars(EnvVars{}) })
+	require.Panics(t, func() { ensureNoBlankEnvVars(envVars{}) })
 }

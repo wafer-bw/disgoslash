@@ -1,4 +1,4 @@
-package client
+package disgoslash
 
 import (
 	"bytes"
@@ -9,75 +9,72 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/wafer-bw/disgoslash/config"
-	"github.com/wafer-bw/disgoslash/errs"
 	"github.com/wafer-bw/disgoslash/models"
 )
 
-// impl implements `Client` properties
-type impl struct {
-	conf    *config.Config
+// client implements a `Client` interface's properties
+type client struct {
+	conf    *Config
 	apiURL  string
 	headers map[string]string
 }
 
-// Client interfaces `Client` methods
+// Client interface methods
 type Client interface {
 	ListApplicationCommands(guildID string) ([]*models.ApplicationCommand, error)
 	CreateApplicationCommand(guildID string, command *models.ApplicationCommand) error
 	DeleteApplicationCommand(guildID string, commandID string) error
 }
 
-// New returns a new `Client` interface
-func New(creds *config.Credentials) Client {
-	conf := config.New(creds)
-	return construct(conf)
+// NewClient creates a new `Client` instance
+func NewClient(creds *Credentials) Client {
+	conf := NewConfig(creds)
+	return constructClient(conf)
 }
 
-// construct a new `Client` interface
-func construct(conf *config.Config) Client {
-	return &impl{
+func constructClient(conf *Config) Client {
+	return &client{
 		conf:   conf,
-		apiURL: fmt.Sprintf("%s/%s/applications/%s", conf.DiscordAPI.BaseURL, conf.DiscordAPI.APIVersion, conf.Credentials.ClientID),
+		apiURL: fmt.Sprintf("%s/%s/applications/%s", conf.discordAPI.baseURL, conf.discordAPI.apiVersion, conf.Credentials.ClientID),
 		headers: map[string]string{
 			"Authorization": fmt.Sprintf("Bot %s", conf.Credentials.Token),
-			"Content-Type":  conf.DiscordAPI.ContentType,
+			"Content-Type":  conf.discordAPI.contentType,
 		},
 	}
 }
 
-func (impl *impl) ListApplicationCommands(guildID string) ([]*models.ApplicationCommand, error) {
+func (client *client) ListApplicationCommands(guildID string) ([]*models.ApplicationCommand, error) {
 	var url string
 	if guildID == "" {
-		url = fmt.Sprintf("%s/commands", impl.apiURL)
+		url = fmt.Sprintf("%s/commands", client.apiURL)
 	} else {
-		url = fmt.Sprintf("%s/guilds/%s/commands", impl.apiURL, guildID)
+		url = fmt.Sprintf("%s/guilds/%s/commands", client.apiURL, guildID)
 	}
-	return impl.listApplicationCommands(url)
+	return client.listApplicationCommands(url)
 }
 
-func (impl *impl) CreateApplicationCommand(guildID string, command *models.ApplicationCommand) error {
+func (client *client) CreateApplicationCommand(guildID string, command *models.ApplicationCommand) error {
 	var url string
 	if guildID == "" {
-		url = fmt.Sprintf("%s/commands", impl.apiURL)
+		url = fmt.Sprintf("%s/commands", client.apiURL)
 	} else {
-		url = fmt.Sprintf("%s/guilds/%s/commands", impl.apiURL, guildID)
+		url = fmt.Sprintf("%s/guilds/%s/commands", client.apiURL, guildID)
 	}
-	return impl.createApplicationCommand(url, command)
+	return client.createApplicationCommand(url, command)
 }
 
-func (impl *impl) DeleteApplicationCommand(guildID string, commandID string) error {
+func (client *client) DeleteApplicationCommand(guildID string, commandID string) error {
 	var url string
 	if guildID == "" {
-		url = fmt.Sprintf("%s/commands/%s", impl.apiURL, commandID)
+		url = fmt.Sprintf("%s/commands/%s", client.apiURL, commandID)
 	} else {
-		url = fmt.Sprintf("%s/guilds/%s/commands/%s", impl.apiURL, guildID, commandID)
+		url = fmt.Sprintf("%s/guilds/%s/commands/%s", client.apiURL, guildID, commandID)
 	}
-	return impl.deleteApplicationCommands(url)
+	return client.deleteApplicationCommands(url)
 }
 
-func (impl *impl) listApplicationCommands(url string) ([]*models.ApplicationCommand, error) {
-	status, data, err := httpRequest(http.MethodGet, url, impl.headers, nil)
+func (client *client) listApplicationCommands(url string) ([]*models.ApplicationCommand, error) {
+	status, data, err := request(http.MethodGet, url, client.headers, nil)
 	if err != nil {
 		return nil, err
 	} else if status != http.StatusOK {
@@ -90,23 +87,23 @@ func (impl *impl) listApplicationCommands(url string) ([]*models.ApplicationComm
 	return *commands, nil
 }
 
-func (impl *impl) createApplicationCommand(url string, command *models.ApplicationCommand) error {
+func (client *client) createApplicationCommand(url string, command *models.ApplicationCommand) error {
 	body, err := marshal(command)
 	if err != nil {
 		return err
 	}
-	if status, data, err := httpRequest(http.MethodPost, url, impl.headers, body); err != nil {
+	if status, data, err := request(http.MethodPost, url, client.headers, body); err != nil {
 		return err
 	} else if status == http.StatusOK {
-		return errs.ErrAlreadyExists
+		return ErrAlreadyExists
 	} else if status != http.StatusCreated {
 		return fmt.Errorf("%d - %s", status, string(data))
 	}
 	return nil
 }
 
-func (impl *impl) deleteApplicationCommands(url string) error {
-	if status, data, err := httpRequest(http.MethodDelete, url, impl.headers, nil); err != nil {
+func (client *client) deleteApplicationCommands(url string) error {
+	if status, data, err := request(http.MethodDelete, url, client.headers, nil); err != nil {
 		return err
 	} else if status != http.StatusNoContent {
 		return fmt.Errorf("%d - %s", status, string(data))
@@ -129,7 +126,7 @@ func marshal(v interface{}) (io.Reader, error) {
 	return bytes.NewBuffer(body), nil
 }
 
-func httpRequest(method string, url string, headers map[string]string, body io.Reader) (int, []byte, error) {
+func request(method string, url string, headers map[string]string, body io.Reader) (int, []byte, error) {
 	attempts := 0
 	maxAttempts := 3
 
@@ -152,9 +149,9 @@ func httpRequest(method string, url string, headers map[string]string, body io.R
 
 		switch response.StatusCode {
 		case http.StatusForbidden:
-			return 0, nil, errs.ErrForbidden
+			return 0, nil, ErrForbidden
 		case http.StatusUnauthorized:
-			return 0, nil, errs.ErrUnauthorized
+			return 0, nil, ErrUnauthorized
 		}
 
 		data, err := ioutil.ReadAll(response.Body)
@@ -172,7 +169,7 @@ func httpRequest(method string, url string, headers map[string]string, body io.R
 		}
 		time.Sleep(waitTime)
 	}
-	return 0, nil, errs.ErrMaxRetries
+	return 0, nil, ErrMaxRetries
 }
 
 func determineRetry(statusCode int, data []byte) (time.Duration, error) {

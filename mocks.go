@@ -1,7 +1,6 @@
-package mocks
+package disgoslash
 
 import (
-	"github.com/wafer-bw/disgoslash/config"
 	"github.com/wafer-bw/disgoslash/models"
 )
 
@@ -23,20 +22,20 @@ func SlashCommandDo(request *models.InteractionRequest) (*models.InteractionResp
 }
 
 // GetConf returns a new instance of a mocked config object
-func GetConf() *config.Config {
-	return &config.Config{
-		Credentials: &config.Credentials{
+func GetConf() *Config {
+	return &Config{
+		Credentials: &Credentials{
 			PublicKey: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
 			ClientID:  "abc123",
 			Token:     "abc123",
 		},
-		DiscordAPI: &config.DiscordAPI{
-			BaseURL:     "https://discord.com/api",
-			APIVersion:  "v8",
-			ContentType: "application/json",
+		discordAPI: &discordAPI{
+			baseURL:     "https://discord.com/api",
+			apiVersion:  "v8",
+			contentType: "application/json",
 		},
 	}
 }
 
-// Conf mocks the `config.Config` object
+// Conf mocks the `Config` object
 var Conf = GetConf()

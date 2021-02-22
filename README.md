@@ -25,7 +25,11 @@ todo
 * `models`
     * Finish Guild Model
 * Package
-    * Collapse?
+    * Collapse
+    * Update names of Mocks to prefix with `Mock` and get rid of as many mocks as possible
+    * Update test exclusion pattern in makefile `test*` commands
+    * MAYBE Make verify a function not an interface
+    * Remove env vars entirely if possible
     * `doc.go`
     * Header comments
     * Examples

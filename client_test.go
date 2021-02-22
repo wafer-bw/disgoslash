@@ -1,27 +1,18 @@
-package client
+package disgoslash
 
 import (
 	"fmt"
-	"io/ioutil"
-	"log"
 	"net/http"
 	"net/http/httptest"
-	"os"
 	"testing"
 
 	"github.com/stretchr/testify/require"
-	"github.com/wafer-bw/disgoslash/errs"
-	"github.com/wafer-bw/disgoslash/mocks"
 	"github.com/wafer-bw/disgoslash/models"
 )
 
 var guildID = "1234567890"
 
-func TestMain(m *testing.M) {
-	log.SetOutput(ioutil.Discard)
-	exitCode := m.Run()
-	os.Exit(exitCode)
-}
+// todo - TestNewClient()
 
 func TestListApplicationCommands(t *testing.T) {
 	t.Run("success/global", func(t *testing.T) {
@@ -32,10 +23,10 @@ func TestListApplicationCommands(t *testing.T) {
 			w.Write([]byte(mockResponse))
 		}))
 		defer func() { mockServer.Close() }()
-		mocks.Conf.DiscordAPI.BaseURL = mockServer.URL
-		clientImpl := construct(mocks.Conf)
+		Conf.discordAPI.baseURL = mockServer.URL
+		client := constructClient(Conf)
 
-		commands, err := clientImpl.ListApplicationCommands("")
+		commands, err := client.ListApplicationCommands("")
 		require.NoError(t, err)
 		require.Equal(t, commands[0].Name, commandName)
 	})
@@ -47,10 +38,10 @@ func TestListApplicationCommands(t *testing.T) {
 			w.Write([]byte(mockResponse))
 		}))
 		defer func() { mockServer.Close() }()
-		mocks.Conf.DiscordAPI.BaseURL = mockServer.URL
-		clientImpl := construct(mocks.Conf)
+		Conf.discordAPI.baseURL = mockServer.URL
+		client := constructClient(Conf)
 
-		commands, err := clientImpl.ListApplicationCommands(guildID)
+		commands, err := client.ListApplicationCommands(guildID)
 		require.NoError(t, err)
 		require.Equal(t, commands[0].Name, commandName)
 	})
@@ -62,10 +53,10 @@ func TestListApplicationCommands(t *testing.T) {
 			w.Write([]byte(mockResponse))
 		}))
 		defer func() { mockServer.Close() }()
-		mocks.Conf.DiscordAPI.BaseURL = mockServer.URL
-		clientImpl := construct(mocks.Conf)
+		Conf.discordAPI.baseURL = mockServer.URL
+		client := constructClient(Conf)
 
-		_, err := clientImpl.ListApplicationCommands(guildID)
+		_, err := client.ListApplicationCommands(guildID)
 		require.Error(t, err)
 	})
 }
@@ -76,10 +67,10 @@ func TestDeleteApplicationCommand(t *testing.T) {
 			w.WriteHeader(http.StatusNoContent)
 		}))
 		defer func() { mockServer.Close() }()
-		mocks.Conf.DiscordAPI.BaseURL = mockServer.URL
-		clientImpl := construct(mocks.Conf)
+		Conf.discordAPI.baseURL = mockServer.URL
+		client := constructClient(Conf)
 
-		err := clientImpl.DeleteApplicationCommand("", "12345")
+		err := client.DeleteApplicationCommand("", "12345")
 		require.NoError(t, err)
 	})
 	t.Run("success/guild", func(t *testing.T) {
@@ -87,10 +78,10 @@ func TestDeleteApplicationCommand(t *testing.T) {
 			w.WriteHeader(http.StatusNoContent)
 		}))
 		defer func() { mockServer.Close() }()
-		mocks.Conf.DiscordAPI.BaseURL = mockServer.URL
-		clientImpl := construct(mocks.Conf)
+		Conf.discordAPI.baseURL = mockServer.URL
+		client := constructClient(Conf)
 
-		err := clientImpl.DeleteApplicationCommand("12345", "12345")
+		err := client.DeleteApplicationCommand("12345", "12345")
 		require.NoError(t, err)
 	})
 	t.Run("failure/unauthorized", func(t *testing.T) {
@@ -98,10 +89,10 @@ func TestDeleteApplicationCommand(t *testing.T) {
 			w.WriteHeader(http.StatusUnauthorized)
 		}))
 		defer func() { mockServer.Close() }()
-		mocks.Conf.DiscordAPI.BaseURL = mockServer.URL
-		clientImpl := construct(mocks.Conf)
+		Conf.discordAPI.baseURL = mockServer.URL
+		client := constructClient(Conf)
 
-		err := clientImpl.DeleteApplicationCommand("12345", "12345")
+		err := client.DeleteApplicationCommand("12345", "12345")
 		require.Error(t, err)
 	})
 }
@@ -112,10 +103,10 @@ func TestCreateApplicationCommand(t *testing.T) {
 			w.WriteHeader(http.StatusCreated)
 		}))
 		defer func() { mockServer.Close() }()
-		mocks.Conf.DiscordAPI.BaseURL = mockServer.URL
-		clientImpl := construct(mocks.Conf)
+		Conf.discordAPI.baseURL = mockServer.URL
+		client := constructClient(Conf)
 
-		err := clientImpl.CreateApplicationCommand("", &models.ApplicationCommand{})
+		err := client.CreateApplicationCommand("", &models.ApplicationCommand{})
 		require.NoError(t, err)
 	})
 	t.Run("success/guild", func(t *testing.T) {
@@ -123,10 +114,10 @@ func TestCreateApplicationCommand(t *testing.T) {
 			w.WriteHeader(http.StatusCreated)
 		}))
 		defer func() { mockServer.Close() }()
-		mocks.Conf.DiscordAPI.BaseURL = mockServer.URL
-		clientImpl := construct(mocks.Conf)
+		Conf.discordAPI.baseURL = mockServer.URL
+		client := constructClient(Conf)
 
-		err := clientImpl.CreateApplicationCommand("12345", &models.ApplicationCommand{})
+		err := client.CreateApplicationCommand("12345", &models.ApplicationCommand{})
 		require.NoError(t, err)
 	})
 	t.Run("failure/unauthorized", func(t *testing.T) {
@@ -134,10 +125,10 @@ func TestCreateApplicationCommand(t *testing.T) {
 			w.WriteHeader(http.StatusUnauthorized)
 		}))
 		defer func() { mockServer.Close() }()
-		mocks.Conf.DiscordAPI.BaseURL = mockServer.URL
-		clientImpl := construct(mocks.Conf)
+		Conf.discordAPI.baseURL = mockServer.URL
+		client := constructClient(Conf)
 
-		err := clientImpl.CreateApplicationCommand("12345", &models.ApplicationCommand{})
+		err := client.CreateApplicationCommand("12345", &models.ApplicationCommand{})
 		require.Error(t, err)
 	})
 	t.Run("failure/already exists", func(t *testing.T) {
@@ -145,11 +136,11 @@ func TestCreateApplicationCommand(t *testing.T) {
 			w.WriteHeader(http.StatusOK)
 		}))
 		defer func() { mockServer.Close() }()
-		mocks.Conf.DiscordAPI.BaseURL = mockServer.URL
-		clientImpl := construct(mocks.Conf)
+		Conf.discordAPI.baseURL = mockServer.URL
+		client := constructClient(Conf)
 
-		err := clientImpl.CreateApplicationCommand("12345", &models.ApplicationCommand{})
+		err := client.CreateApplicationCommand("12345", &models.ApplicationCommand{})
 		require.Error(t, err)
-		require.Equal(t, err, errs.ErrAlreadyExists)
+		require.Equal(t, err, ErrAlreadyExists)
 	})
 }

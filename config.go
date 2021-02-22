@@ -1,4 +1,4 @@
-package config
+package disgoslash
 
 import (
 	"fmt"
@@ -8,8 +8,7 @@ import (
 	"github.com/kelseyhightower/envconfig"
 )
 
-// EnvVars defines expected & required environment variables
-type EnvVars struct {
+type envVars struct {
 	PublicKey string `envconfig:"PUBLIC_KEY" required:"true" split_words:"true"`
 	ClientID  string `envconfig:"CLIENT_ID" required:"true" split_words:"true"`
 	Token     string `envconfig:"TOKEN" required:"true" split_words:"true"`
@@ -18,14 +17,13 @@ type EnvVars struct {
 // Config holds all config data
 type Config struct {
 	Credentials *Credentials
-	DiscordAPI  *DiscordAPI
+	discordAPI  *discordAPI
 }
 
-// DiscordAPI config data
-type DiscordAPI struct {
-	BaseURL     string
-	APIVersion  string
-	ContentType string
+type discordAPI struct {
+	baseURL     string
+	apiVersion  string
+	contentType string
 }
 
 // Credentials config data
@@ -35,17 +33,17 @@ type Credentials struct {
 	Token     string
 }
 
-// DiscordAPIConf object
-var DiscordAPIConf = &DiscordAPI{
-	BaseURL:     "https://discord.com/api",
-	APIVersion:  "v8",
-	ContentType: "application/json",
+var discordAPIConf = &discordAPI{
+	baseURL:     "https://discord.com/api",
+	apiVersion:  "v8",
+	contentType: "application/json",
 }
 
-// New returns a new `Config` struct; panics if unable
-func New(creds *Credentials) *Config {
+// NewConfig creates a new `Config` object; panics if unable.
+// If `creds` is `nil` it will attempt to load environment variables
+func NewConfig(creds *Credentials) *Config {
 	if creds != nil {
-		return &Config{Credentials: creds, DiscordAPI: DiscordAPIConf}
+		return &Config{Credentials: creds, discordAPI: discordAPIConf}
 	}
 
 	env := getEnvVars()
@@ -56,12 +54,12 @@ func New(creds *Credentials) *Config {
 			ClientID:  env.ClientID,
 			Token:     env.Token,
 		},
-		DiscordAPI: DiscordAPIConf,
+		discordAPI: discordAPIConf,
 	}
 }
 
-func getEnvVars() EnvVars {
-	var env EnvVars
+func getEnvVars() envVars {
+	var env envVars
 	err := envconfig.Process("", &env)
 	if err != nil {
 		panic(err)
@@ -69,14 +67,14 @@ func getEnvVars() EnvVars {
 	return env
 }
 
-func ensureNoBlankEnvVars(env EnvVars) {
+func ensureNoBlankEnvVars(env envVars) {
 	blanks := findBlankEnvVars(env)
 	if len(blanks) > 0 {
 		panic(fmt.Errorf("the following environment variables are blank: %s", strings.Join(blanks, ", ")))
 	}
 }
 
-func findBlankEnvVars(env EnvVars) []string {
+func findBlankEnvVars(env envVars) []string {
 	var blanks []string
 	valueOfStruct := reflect.ValueOf(env)
 	typeOfStruct := valueOfStruct.Type()

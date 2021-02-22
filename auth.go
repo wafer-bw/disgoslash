@@ -1,35 +1,29 @@
-package auth
+package disgoslash
 
 import (
 	"crypto/ed25519"
 	"encoding/hex"
 	"net/http"
-
-	"github.com/wafer-bw/disgoslash/config"
 )
 
-// Deps defines `Authorization` dependencies
-type Deps struct{}
-
-// impl implements `Authorization` properties
-type impl struct {
-	deps *Deps
-	conf *config.Config
+// auth implements an `Auth` interface's properties
+type auth struct {
+	conf *Config
 }
 
-// Authorization interfaces `Authorization` methods
-type Authorization interface {
+// Auth interfaces `Auth` methods
+type Auth interface {
 	Verify(rawBody []byte, headers http.Header) bool
 }
 
-// New returns a new `Authorization` interface
-func New(deps *Deps, conf *config.Config) Authorization {
-	return &impl{deps: deps, conf: conf}
+// NewAuth returns a new `Auth` interface
+func NewAuth(conf *Config) Auth {
+	return &auth{conf: conf}
 }
 
 // Verify that the request from Discord is authorized using ed25519
 // https://discord.com/developers/docs/interactions/slash-commands#security-and-authorization
-func (impl *impl) Verify(rawBody []byte, headers http.Header) bool {
+func (auth *auth) Verify(rawBody []byte, headers http.Header) bool {
 	signature := headers.Get("x-signature-ed25519")
 	if signature == "" {
 		return false
@@ -49,7 +43,7 @@ func (impl *impl) Verify(rawBody []byte, headers http.Header) bool {
 		return false
 	}
 
-	keyBytes, err := hex.DecodeString(impl.conf.Credentials.PublicKey)
+	keyBytes, err := hex.DecodeString(auth.conf.Credentials.PublicKey)
 	if err != nil {
 		return false
 	}
