@@ -7,7 +7,6 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/require"
-	"github.com/wafer-bw/disgoslash/models"
 )
 
 var guildID = "1234567890"
@@ -106,7 +105,7 @@ func TestCreateApplicationCommand(t *testing.T) {
 		Conf.discordAPI.baseURL = mockServer.URL
 		client := constructClient(Conf)
 
-		err := client.CreateApplicationCommand("", &models.ApplicationCommand{})
+		err := client.CreateApplicationCommand("", &ApplicationCommand{})
 		require.NoError(t, err)
 	})
 	t.Run("success/guild", func(t *testing.T) {
@@ -117,7 +116,7 @@ func TestCreateApplicationCommand(t *testing.T) {
 		Conf.discordAPI.baseURL = mockServer.URL
 		client := constructClient(Conf)
 
-		err := client.CreateApplicationCommand("12345", &models.ApplicationCommand{})
+		err := client.CreateApplicationCommand("12345", &ApplicationCommand{})
 		require.NoError(t, err)
 	})
 	t.Run("failure/unauthorized", func(t *testing.T) {
@@ -128,7 +127,7 @@ func TestCreateApplicationCommand(t *testing.T) {
 		Conf.discordAPI.baseURL = mockServer.URL
 		client := constructClient(Conf)
 
-		err := client.CreateApplicationCommand("12345", &models.ApplicationCommand{})
+		err := client.CreateApplicationCommand("12345", &ApplicationCommand{})
 		require.Error(t, err)
 	})
 	t.Run("failure/already exists", func(t *testing.T) {
@@ -139,7 +138,7 @@ func TestCreateApplicationCommand(t *testing.T) {
 		Conf.discordAPI.baseURL = mockServer.URL
 		client := constructClient(Conf)
 
-		err := client.CreateApplicationCommand("12345", &models.ApplicationCommand{})
+		err := client.CreateApplicationCommand("12345", &ApplicationCommand{})
 		require.Error(t, err)
 		require.Equal(t, err, ErrAlreadyExists)
 	})

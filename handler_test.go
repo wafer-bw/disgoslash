@@ -10,14 +10,13 @@ import (
 
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
-	"github.com/wafer-bw/disgoslash/models"
 )
 
 var url = "http://localhost/api"
 var mockAuth = &MockAuth{}
 var interactionName = "interaction"
 var handlerImpl = constructHandler(mockAuth, NewSlashCommandMap(
-	NewSlashCommand(interactionName, &models.ApplicationCommand{Name: interactionName, Description: "desc"}, SlashCommandDo, true, []string{"11111"}),
+	NewSlashCommand(interactionName, &ApplicationCommand{Name: interactionName, Description: "desc"}, SlashCommandDo, true, []string{"11111"}),
 ), Conf)
 var handlerFunc = http.HandlerFunc(handlerImpl.Handle)
 
@@ -36,9 +35,9 @@ func TestHandle(t *testing.T) {
 	})
 	t.Run("success/run interaction", func(t *testing.T) {
 		mockAuth.On("Verify", mock.Anything, mock.Anything, mock.Anything).Return(true).Times(1)
-		interaction := &models.InteractionRequest{
-			Type: models.InteractionTypeApplicationCommand,
-			Data: &models.ApplicationCommandInteractionData{Name: interactionName},
+		interaction := &InteractionRequest{
+			Type: InteractionTypeApplicationCommand,
+			Data: &ApplicationCommandInteractionData{Name: interactionName},
 		}
 		data, err := json.Marshal(interaction)
 		require.NoError(t, err)
@@ -48,9 +47,9 @@ func TestHandle(t *testing.T) {
 	})
 	t.Run("failure/unimplemented interaction", func(t *testing.T) {
 		mockAuth.On("Verify", mock.Anything, mock.Anything, mock.Anything).Return(true).Times(1)
-		interaction := &models.InteractionRequest{
-			Type: models.InteractionTypeApplicationCommand,
-			Data: &models.ApplicationCommandInteractionData{Name: interactionName + "Z"},
+		interaction := &InteractionRequest{
+			Type: InteractionTypeApplicationCommand,
+			Data: &ApplicationCommandInteractionData{Name: interactionName + "Z"},
 		}
 		data, err := json.Marshal(interaction)
 		require.NoError(t, err)

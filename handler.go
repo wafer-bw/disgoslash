@@ -5,8 +5,6 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
-
-	"github.com/wafer-bw/disgoslash/models"
 )
 
 // handler implements a `Handler` interface's properties
@@ -31,8 +29,8 @@ func constructHandler(auth Auth, slashCommandMap SlashCommandMap, conf *Config) 
 	return &handler{auth: auth, slashCommandMap: slashCommandMap, conf: conf}
 }
 
-var pongResponse = &models.InteractionResponse{
-	Type: models.InteractionResponseTypePong,
+var pongResponse = &InteractionResponse{
+	Type: InteractionResponseTypePong,
 }
 
 // Handle handles incoming HTTP requests
@@ -58,7 +56,7 @@ func (handler *handler) Handle(w http.ResponseWriter, r *http.Request) {
 	handler.respond(w, body, nil)
 }
 
-func (handler *handler) resolve(r *http.Request) (*models.InteractionRequest, error) {
+func (handler *handler) resolve(r *http.Request) (*InteractionRequest, error) {
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
 		return nil, err
@@ -71,18 +69,18 @@ func (handler *handler) resolve(r *http.Request) (*models.InteractionRequest, er
 	return handler.unmarshal(body)
 }
 
-func (handler *handler) triage(interaction *models.InteractionRequest) (*models.InteractionResponse, error) {
+func (handler *handler) triage(interaction *InteractionRequest) (*InteractionResponse, error) {
 	switch interaction.Type {
-	case models.InteractionTypePing:
+	case InteractionTypePing:
 		return pongResponse, nil
-	case models.InteractionTypeApplicationCommand:
+	case InteractionTypeApplicationCommand:
 		return handler.execute(interaction)
 	default:
 		return nil, ErrInvalidInteractionType
 	}
 }
 
-func (handler *handler) execute(interaction *models.InteractionRequest) (*models.InteractionResponse, error) {
+func (handler *handler) execute(interaction *InteractionRequest) (*InteractionResponse, error) {
 	slashCommand, ok := handler.slashCommandMap[interaction.Data.Name]
 	if !ok {
 		return nil, ErrNotImplemented
@@ -108,14 +106,14 @@ func (handler *handler) respond(w http.ResponseWriter, body []byte, err error) {
 	}
 }
 
-func (handler *handler) unmarshal(data []byte) (*models.InteractionRequest, error) {
-	interaction := &models.InteractionRequest{}
+func (handler *handler) unmarshal(data []byte) (*InteractionRequest, error) {
+	interaction := &InteractionRequest{}
 	if err := json.Unmarshal(data, interaction); err != nil {
 		return nil, err
 	}
 	return interaction, nil
 }
 
-func (handler *handler) marshal(response *models.InteractionResponse) ([]byte, error) {
+func (handler *handler) marshal(response *InteractionResponse) ([]byte, error) {
 	return json.Marshal(response)
 }

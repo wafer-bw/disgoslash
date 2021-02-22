@@ -8,8 +8,6 @@ import (
 	"io/ioutil"
 	"net/http"
 	"time"
-
-	"github.com/wafer-bw/disgoslash/models"
 )
 
 // client implements a `Client` interface's properties
@@ -21,8 +19,8 @@ type client struct {
 
 // Client interface methods
 type Client interface {
-	ListApplicationCommands(guildID string) ([]*models.ApplicationCommand, error)
-	CreateApplicationCommand(guildID string, command *models.ApplicationCommand) error
+	ListApplicationCommands(guildID string) ([]*ApplicationCommand, error)
+	CreateApplicationCommand(guildID string, command *ApplicationCommand) error
 	DeleteApplicationCommand(guildID string, commandID string) error
 }
 
@@ -43,7 +41,7 @@ func constructClient(conf *Config) Client {
 	}
 }
 
-func (client *client) ListApplicationCommands(guildID string) ([]*models.ApplicationCommand, error) {
+func (client *client) ListApplicationCommands(guildID string) ([]*ApplicationCommand, error) {
 	var url string
 	if guildID == "" {
 		url = fmt.Sprintf("%s/commands", client.apiURL)
@@ -53,7 +51,7 @@ func (client *client) ListApplicationCommands(guildID string) ([]*models.Applica
 	return client.listApplicationCommands(url)
 }
 
-func (client *client) CreateApplicationCommand(guildID string, command *models.ApplicationCommand) error {
+func (client *client) CreateApplicationCommand(guildID string, command *ApplicationCommand) error {
 	var url string
 	if guildID == "" {
 		url = fmt.Sprintf("%s/commands", client.apiURL)
@@ -73,21 +71,21 @@ func (client *client) DeleteApplicationCommand(guildID string, commandID string)
 	return client.deleteApplicationCommands(url)
 }
 
-func (client *client) listApplicationCommands(url string) ([]*models.ApplicationCommand, error) {
+func (client *client) listApplicationCommands(url string) ([]*ApplicationCommand, error) {
 	status, data, err := request(http.MethodGet, url, client.headers, nil)
 	if err != nil {
 		return nil, err
 	} else if status != http.StatusOK {
 		return nil, fmt.Errorf("%d - %s", status, string(data))
 	}
-	commands := &[]*models.ApplicationCommand{}
+	commands := &[]*ApplicationCommand{}
 	if err := unmarshal(data, commands); err != nil {
 		return nil, err
 	}
 	return *commands, nil
 }
 
-func (client *client) createApplicationCommand(url string, command *models.ApplicationCommand) error {
+func (client *client) createApplicationCommand(url string, command *ApplicationCommand) error {
 	body, err := marshal(command)
 	if err != nil {
 		return err
@@ -176,7 +174,7 @@ func determineRetry(statusCode int, data []byte) (time.Duration, error) {
 	if statusCode != http.StatusTooManyRequests {
 		return 0, nil
 	}
-	responseErr := &models.APIErrorResponse{}
+	responseErr := &APIErrorResponse{}
 	if err := unmarshal(data, responseErr); err != nil {
 		return 0, err
 	}

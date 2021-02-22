@@ -1,24 +1,20 @@
 package disgoslash
 
-import (
-	"github.com/wafer-bw/disgoslash/models"
-)
+// MockSlashCommandName mocks a command name
+var MockSlashCommandName = "hello"
 
-// SlashCommandName mocks a command name
-var SlashCommandName = "hello"
+// MockSlashCommandResponseContent mocks a command response message
+var MockSlashCommandResponseContent = "Hello World!"
 
-// SlashCommandResponseContent mocks a command response message
-var SlashCommandResponseContent = "Hello World!"
-
-// InteractionResponse mocks an interaciton response object
-var InteractionResponse = &models.InteractionResponse{
-	Type: models.InteractionResponseTypeChannelMessageWithSource,
-	Data: &models.InteractionApplicationCommandCallbackData{Content: SlashCommandResponseContent},
+// MockInteractionResponse mocks an interaciton response object
+var MockInteractionResponse = &InteractionResponse{
+	Type: InteractionResponseTypeChannelMessageWithSource,
+	Data: &InteractionApplicationCommandCallbackData{Content: MockSlashCommandResponseContent},
 }
 
 // SlashCommandDo mocks a command `Do` function
-func SlashCommandDo(request *models.InteractionRequest) (*models.InteractionResponse, error) {
-	return InteractionResponse, nil
+func SlashCommandDo(request *InteractionRequest) (*InteractionResponse, error) {
+	return MockInteractionResponse, nil
 }
 
 // GetConf returns a new instance of a mocked config object

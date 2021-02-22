@@ -5,13 +5,12 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/require"
-	"github.com/wafer-bw/disgoslash/models"
 )
 
 func TestNewSlashCommand(t *testing.T) {
 	t.Run("success", func(t *testing.T) {
 		name := "HelloWorld"
-		command := &models.ApplicationCommand{Name: name, Description: "Says hello world!"}
+		command := &ApplicationCommand{Name: name, Description: "Says hello world!"}
 		slashCommand := NewSlashCommand(name, command, nil, true, []string{"12345"})
 		require.Equal(t, strings.ToLower(name), slashCommand.Name)
 		require.Equal(t, name, slashCommand.AppCommand.Name)
@@ -19,7 +18,7 @@ func TestNewSlashCommand(t *testing.T) {
 	})
 	t.Run("success/global only", func(t *testing.T) {
 		name := "HelloWorld"
-		command := &models.ApplicationCommand{Name: name, Description: "Says hello world!"}
+		command := &ApplicationCommand{Name: name, Description: "Says hello world!"}
 		slashCommand := NewSlashCommand(name, command, nil, true, []string{})
 		require.Equal(t, strings.ToLower(name), slashCommand.Name)
 		require.Equal(t, name, slashCommand.AppCommand.Name)
@@ -27,7 +26,7 @@ func TestNewSlashCommand(t *testing.T) {
 	})
 	t.Run("success/guild only", func(t *testing.T) {
 		name := "HelloWorld"
-		command := &models.ApplicationCommand{Name: name, Description: "Says hello world!"}
+		command := &ApplicationCommand{Name: name, Description: "Says hello world!"}
 		slashCommand := NewSlashCommand(name, command, nil, false, []string{"12345"})
 		require.Equal(t, strings.ToLower(name), slashCommand.Name)
 		require.Equal(t, name, slashCommand.AppCommand.Name)
@@ -35,7 +34,7 @@ func TestNewSlashCommand(t *testing.T) {
 	})
 	t.Run("success/accepts nil guildIDs slice", func(t *testing.T) {
 		name := "HelloWorld"
-		command := &models.ApplicationCommand{Name: name, Description: "Says hello world!"}
+		command := &ApplicationCommand{Name: name, Description: "Says hello world!"}
 		slashCommand := NewSlashCommand(name, command, nil, false, nil)
 		require.Equal(t, strings.ToLower(name), slashCommand.Name)
 		require.Equal(t, name, slashCommand.AppCommand.Name)
@@ -45,7 +44,7 @@ func TestNewSlashCommand(t *testing.T) {
 
 func TestNewSlashCommandMap(t *testing.T) {
 	slashCommandMap := NewSlashCommandMap(
-		NewSlashCommand(SlashCommandName, &models.ApplicationCommand{Name: SlashCommandName, Description: "desc"}, SlashCommandDo, true, []string{"11111"}),
+		NewSlashCommand(MockSlashCommandName, &ApplicationCommand{Name: MockSlashCommandName, Description: "desc"}, SlashCommandDo, true, []string{"11111"}),
 	)
 	require.Equal(t, 1, len(slashCommandMap))
 }

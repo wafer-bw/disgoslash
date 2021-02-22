@@ -4,7 +4,6 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/require"
-	"github.com/wafer-bw/disgoslash/models"
 )
 
 var mockClient = &MockClient{}
@@ -13,7 +12,7 @@ var syncerImpl = constructSyncer(mockClient, Conf)
 // todo - TestNewSyncer()
 
 func TestRun(t *testing.T) {
-	applicationCommands := []*models.ApplicationCommand{
+	applicationCommands := []*ApplicationCommand{
 		{ID: "A", Name: "testCommandA", Description: "desc"},
 		{ID: "B", Name: "testCommandB", Description: "desc"},
 	}
@@ -23,9 +22,9 @@ func TestRun(t *testing.T) {
 	)
 
 	t.Run("success", func(t *testing.T) {
-		mockClient.On("ListApplicationCommands", "").Return([]*models.ApplicationCommand{applicationCommands[0]}, nil).Times(1)
-		mockClient.On("ListApplicationCommands", "12345").Return([]*models.ApplicationCommand{applicationCommands[0]}, nil).Times(1)
-		mockClient.On("ListApplicationCommands", "67890").Return([]*models.ApplicationCommand{applicationCommands[1]}, nil).Times(1)
+		mockClient.On("ListApplicationCommands", "").Return([]*ApplicationCommand{applicationCommands[0]}, nil).Times(1)
+		mockClient.On("ListApplicationCommands", "12345").Return([]*ApplicationCommand{applicationCommands[0]}, nil).Times(1)
+		mockClient.On("ListApplicationCommands", "67890").Return([]*ApplicationCommand{applicationCommands[1]}, nil).Times(1)
 
 		mockClient.On("DeleteApplicationCommand", "", "A").Return(nil).Times(1)
 		mockClient.On("DeleteApplicationCommand", "12345", "A").Return(nil).Times(1)
@@ -39,8 +38,8 @@ func TestRun(t *testing.T) {
 		require.Equal(t, 0, len(errs))
 	})
 	t.Run("failure/has errors", func(t *testing.T) {
-		mockClient.On("ListApplicationCommands", "").Return([]*models.ApplicationCommand{applicationCommands[0]}, nil).Times(1)
-		mockClient.On("ListApplicationCommands", "12345").Return([]*models.ApplicationCommand{applicationCommands[0]}, nil).Times(1)
+		mockClient.On("ListApplicationCommands", "").Return([]*ApplicationCommand{applicationCommands[0]}, nil).Times(1)
+		mockClient.On("ListApplicationCommands", "12345").Return([]*ApplicationCommand{applicationCommands[0]}, nil).Times(1)
 		mockClient.On("ListApplicationCommands", "67890").Return(nil, ErrForbidden).Times(1)
 
 		mockClient.On("DeleteApplicationCommand", "", "A").Return(ErrMaxRetries).Times(1)
