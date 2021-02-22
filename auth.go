@@ -8,7 +8,7 @@ import (
 
 // auth implements an `Auth` interface's properties
 type auth struct {
-	conf *Config
+	creds *Credentials
 }
 
 // Auth interfaces `Auth` methods
@@ -17,8 +17,8 @@ type Auth interface {
 }
 
 // NewAuth returns a new `Auth` interface
-func NewAuth(conf *Config) Auth {
-	return &auth{conf: conf}
+func NewAuth(creds *Credentials) Auth {
+	return &auth{creds: creds}
 }
 
 // Verify that the request from Discord is authorized using ed25519
@@ -43,7 +43,7 @@ func (auth *auth) Verify(rawBody []byte, headers http.Header) bool {
 		return false
 	}
 
-	keyBytes, err := hex.DecodeString(auth.conf.Credentials.PublicKey)
+	keyBytes, err := hex.DecodeString(auth.creds.PublicKey)
 	if err != nil {
 		return false
 	}

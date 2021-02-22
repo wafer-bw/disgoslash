@@ -24,7 +24,7 @@ var do = func(request *InteractionRequest) (*InteractionResponse, error) {
 }
 var handlerImpl = constructHandler(mockAuth, NewSlashCommandMap(
 	NewSlashCommand(interactionName, &ApplicationCommand{Name: interactionName, Description: "desc"}, do, true, []string{"11111"}),
-), GetConf())
+))
 var handlerFunc = http.HandlerFunc(handlerImpl.Handle)
 
 func TestNewHandler(t *testing.T) {

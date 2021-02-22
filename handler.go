@@ -11,7 +11,6 @@ import (
 type handler struct {
 	slashCommandMap SlashCommandMap
 	auth            Auth
-	conf            *Config
 }
 
 // Handler interfaces `Handler` methods
@@ -21,12 +20,11 @@ type Handler interface {
 
 // New returns a new `Handler` interface
 func New(slashCommandMap SlashCommandMap, creds *Credentials) Handler {
-	conf := NewConfig(creds)
-	return constructHandler(NewAuth(conf), slashCommandMap, conf)
+	return constructHandler(NewAuth(creds), slashCommandMap)
 }
 
-func constructHandler(auth Auth, slashCommandMap SlashCommandMap, conf *Config) Handler {
-	return &handler{auth: auth, slashCommandMap: slashCommandMap, conf: conf}
+func constructHandler(auth Auth, slashCommandMap SlashCommandMap) Handler {
+	return &handler{auth: auth, slashCommandMap: slashCommandMap}
 }
 
 var pongResponse = &InteractionResponse{

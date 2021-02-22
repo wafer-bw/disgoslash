@@ -2,6 +2,39 @@ package disgoslash
 
 import "time"
 
+type discordAPI struct {
+	baseURL     string
+	apiVersion  string
+	contentType string
+}
+
+const discordAPIBaseURL string = "https://discord.com/api"
+const discordAPIVersion string = "v8"
+const discordAPIContentType string = "application/json"
+
+func newDiscordAPIConf() *discordAPI {
+	return &discordAPI{
+		baseURL:     discordAPIBaseURL,
+		apiVersion:  discordAPIVersion,
+		contentType: discordAPIContentType,
+	}
+}
+
+// Credentials required from your Discord application & bot
+type Credentials struct {
+	PublicKey string
+	ClientID  string
+	Token     string
+}
+
+func newCreds() *Credentials {
+	return &Credentials{
+		PublicKey: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+		ClientID:  "abc123",
+		Token:     "abc123",
+	}
+}
+
 // APIErrorResponse - Discord API error response object
 type APIErrorResponse struct {
 	Message    string  `json:"message"`

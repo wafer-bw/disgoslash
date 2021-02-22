@@ -12,7 +12,6 @@ import (
 
 // client implements a `Client` interface's properties
 type client struct {
-	conf    *Config
 	apiURL  string
 	headers map[string]string
 }
@@ -26,17 +25,15 @@ type Client interface {
 
 // NewClient creates a new `Client` instance
 func NewClient(creds *Credentials) Client {
-	conf := NewConfig(creds)
-	return constructClient(conf)
+	return constructClient(creds, newDiscordAPIConf())
 }
 
-func constructClient(conf *Config) Client {
+func constructClient(creds *Credentials, dapi *discordAPI) Client {
 	return &client{
-		conf:   conf,
-		apiURL: fmt.Sprintf("%s/%s/applications/%s", conf.discordAPI.baseURL, conf.discordAPI.apiVersion, conf.Credentials.ClientID),
+		apiURL: fmt.Sprintf("%s/%s/applications/%s", dapi.baseURL, dapi.apiVersion, creds.ClientID),
 		headers: map[string]string{
-			"Authorization": fmt.Sprintf("Bot %s", conf.Credentials.Token),
-			"Content-Type":  conf.discordAPI.contentType,
+			"Authorization": fmt.Sprintf("Bot %s", creds.Token),
+			"Content-Type":  dapi.contentType,
 		},
 	}
 }

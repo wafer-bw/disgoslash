@@ -7,7 +7,7 @@ import (
 )
 
 var mockClient = &MockClient{}
-var syncerImpl = constructSyncer(mockClient, GetConf())
+var syncerImpl = constructSyncer(mockClient)
 
 // todo - TestNewSyncer()
 

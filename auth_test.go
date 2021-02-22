@@ -21,14 +21,14 @@ func TestVerify(t *testing.T) {
 		msg := []byte(timestamp + body)
 		headers := http.Header{}
 		signature := ed25519.Sign(privkey, msg)
-		conf := GetConf()
-		conf.Credentials.PublicKey = hex.EncodeToString(pubkey)
-		authorizationImpl := NewAuth(conf)
+		creds := newCreds()
+		creds.PublicKey = hex.EncodeToString(pubkey)
+		authImpl := NewAuth(creds)
 
 		headers.Set("X-Signature-Timestamp", timestamp)
 		headers.Set("X-Signature-Ed25519", hex.EncodeToString(signature[:ed25519.SignatureSize]))
 
-		res := authorizationImpl.Verify([]byte(body), headers)
+		res := authImpl.Verify([]byte(body), headers)
 		require.True(t, res)
 	})
 
@@ -36,14 +36,14 @@ func TestVerify(t *testing.T) {
 		msg := []byte(timestamp + "baddata" + body)
 		headers := http.Header{}
 		signature := ed25519.Sign(privkey, msg)
-		conf := GetConf()
-		conf.Credentials.PublicKey = hex.EncodeToString(pubkey)
-		authorizationImpl := NewAuth(conf)
+		creds := newCreds()
+		creds.PublicKey = hex.EncodeToString(pubkey)
+		authImpl := NewAuth(creds)
 
 		headers.Set("X-Signature-Timestamp", timestamp)
 		headers.Set("X-Signature-Ed25519", hex.EncodeToString(signature[:ed25519.SignatureSize]))
 
-		res := authorizationImpl.Verify([]byte(body), headers)
+		res := authImpl.Verify([]byte(body), headers)
 		require.False(t, res)
 	})
 
@@ -51,27 +51,27 @@ func TestVerify(t *testing.T) {
 		msg := []byte(timestamp + body)
 		headers := http.Header{}
 		signature := ed25519.Sign(privkey, msg)
-		conf := GetConf()
-		conf.Credentials.PublicKey = hex.EncodeToString(pubkey)
-		authorizationImpl := NewAuth(conf)
+		creds := newCreds()
+		creds.PublicKey = hex.EncodeToString(pubkey)
+		authImpl := NewAuth(creds)
 
 		headers.Set("X-Signature-Timestamp", "")
 		headers.Set("X-Signature-Ed25519", hex.EncodeToString(signature[:ed25519.SignatureSize]))
 
-		res := authorizationImpl.Verify([]byte(body), headers)
+		res := authImpl.Verify([]byte(body), headers)
 		require.False(t, res)
 	})
 
 	t.Run("failure/blank signature ed25519", func(t *testing.T) {
 		headers := http.Header{}
-		conf := GetConf()
-		conf.Credentials.PublicKey = hex.EncodeToString(pubkey)
-		authorizationImpl := NewAuth(conf)
+		creds := newCreds()
+		creds.PublicKey = hex.EncodeToString(pubkey)
+		authImpl := NewAuth(creds)
 
 		headers.Set("X-Signature-Timestamp", timestamp)
 		headers.Set("X-Signature-Ed25519", "")
 
-		res := authorizationImpl.Verify([]byte(body), headers)
+		res := authImpl.Verify([]byte(body), headers)
 		require.False(t, res)
 	})
 
@@ -79,14 +79,14 @@ func TestVerify(t *testing.T) {
 		msg := []byte(timestamp + body)
 		headers := http.Header{}
 		signature := ed25519.Sign(privkey, msg)
-		conf := GetConf()
-		conf.Credentials.PublicKey = hex.EncodeToString(pubkey) + "Z"
-		authorizationImpl := NewAuth(conf)
+		creds := newCreds()
+		creds.PublicKey = hex.EncodeToString(pubkey) + "Z"
+		authImpl := NewAuth(creds)
 
 		headers.Set("X-Signature-Timestamp", timestamp)
 		headers.Set("X-Signature-Ed25519", hex.EncodeToString(signature[:ed25519.SignatureSize]))
 
-		res := authorizationImpl.Verify([]byte(body), headers)
+		res := authImpl.Verify([]byte(body), headers)
 		require.False(t, res)
 	})
 
@@ -94,14 +94,14 @@ func TestVerify(t *testing.T) {
 		msg := []byte(timestamp + body)
 		headers := http.Header{}
 		signature := ed25519.Sign(privkey, msg)
-		conf := GetConf()
-		conf.Credentials.PublicKey = hex.EncodeToString(pubkey)
-		authorizationImpl := NewAuth(conf)
+		creds := newCreds()
+		creds.PublicKey = hex.EncodeToString(pubkey)
+		authImpl := NewAuth(creds)
 
 		headers.Set("X-Signature-Timestamp", timestamp)
 		headers.Set("X-Signature-Ed25519", hex.EncodeToString(signature[:ed25519.SignatureSize])+"Z")
 
-		res := authorizationImpl.Verify([]byte(body), headers)
+		res := authImpl.Verify([]byte(body), headers)
 		require.False(t, res)
 	})
 
@@ -109,14 +109,14 @@ func TestVerify(t *testing.T) {
 		msg := []byte(timestamp + body)
 		headers := http.Header{}
 		signature := ed25519.Sign(privkey, msg)
-		conf := GetConf()
-		conf.Credentials.PublicKey = hex.EncodeToString(pubkey) + "1111"
-		authorizationImpl := NewAuth(conf)
+		creds := newCreds()
+		creds.PublicKey = hex.EncodeToString(pubkey) + "1111"
+		authImpl := NewAuth(creds)
 
 		headers.Set("X-Signature-Timestamp", timestamp)
 		headers.Set("X-Signature-Ed25519", hex.EncodeToString(signature[:ed25519.SignatureSize]))
 
-		res := authorizationImpl.Verify([]byte(body), headers)
+		res := authImpl.Verify([]byte(body), headers)
 		require.False(t, res)
 	})
 
@@ -124,14 +124,14 @@ func TestVerify(t *testing.T) {
 		msg := []byte(timestamp + body)
 		headers := http.Header{}
 		signature := ed25519.Sign(privkey, msg)
-		conf := GetConf()
-		conf.Credentials.PublicKey = hex.EncodeToString(pubkey)
-		authorizationImpl := NewAuth(conf)
+		creds := newCreds()
+		creds.PublicKey = hex.EncodeToString(pubkey)
+		authImpl := NewAuth(creds)
 
 		headers.Set("X-Signature-Timestamp", timestamp)
 		headers.Set("X-Signature-Ed25519", hex.EncodeToString(signature[:ed25519.SignatureSize])+"1111")
 
-		res := authorizationImpl.Verify([]byte(body), headers)
+		res := authImpl.Verify([]byte(body), headers)
 		require.False(t, res)
 	})
 }

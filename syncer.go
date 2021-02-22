@@ -7,7 +7,6 @@ import (
 // syncer implements a `Syncer` interface's properties
 type syncer struct {
 	client Client
-	conf   *Config
 }
 
 // Syncer interface methods
@@ -23,13 +22,12 @@ type unregisterTarget struct {
 
 // NewSyncer creates a new `Syncer` instance
 func NewSyncer(creds *Credentials) Syncer {
-	conf := NewConfig(creds)
 	client := NewClient(creds)
-	return constructSyncer(client, conf)
+	return constructSyncer(client)
 }
 
-func constructSyncer(client Client, conf *Config) Syncer {
-	return &syncer{client: client, conf: conf}
+func constructSyncer(client Client) Syncer {
+	return &syncer{client: client}
 }
 
 // Run will reregister all of the provided slash commands
