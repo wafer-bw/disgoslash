@@ -43,8 +43,16 @@ func TestNewSlashCommand(t *testing.T) {
 }
 
 func TestNewSlashCommandMap(t *testing.T) {
+	command := &ApplicationCommand{Name: "hello", Description: "desc"}
+	response := &InteractionResponse{
+		Type: InteractionResponseTypeChannelMessageWithSource,
+		Data: &InteractionApplicationCommandCallbackData{Content: "Hello World!"},
+	}
+	do := func(request *InteractionRequest) (*InteractionResponse, error) {
+		return response, nil
+	}
 	slashCommandMap := NewSlashCommandMap(
-		NewSlashCommand(MockSlashCommandName, &ApplicationCommand{Name: MockSlashCommandName, Description: "desc"}, SlashCommandDo, true, []string{"11111"}),
+		NewSlashCommand("hello", command, do, true, []string{"11111"}),
 	)
 	require.Equal(t, 1, len(slashCommandMap))
 }

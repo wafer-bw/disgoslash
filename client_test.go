@@ -22,8 +22,9 @@ func TestListApplicationCommands(t *testing.T) {
 			w.Write([]byte(mockResponse))
 		}))
 		defer func() { mockServer.Close() }()
-		Conf.discordAPI.baseURL = mockServer.URL
-		client := constructClient(Conf)
+		conf := GetConf()
+		conf.discordAPI.baseURL = mockServer.URL
+		client := constructClient(conf)
 
 		commands, err := client.ListApplicationCommands("")
 		require.NoError(t, err)
@@ -37,8 +38,9 @@ func TestListApplicationCommands(t *testing.T) {
 			w.Write([]byte(mockResponse))
 		}))
 		defer func() { mockServer.Close() }()
-		Conf.discordAPI.baseURL = mockServer.URL
-		client := constructClient(Conf)
+		conf := GetConf()
+		conf.discordAPI.baseURL = mockServer.URL
+		client := constructClient(conf)
 
 		commands, err := client.ListApplicationCommands(guildID)
 		require.NoError(t, err)
@@ -52,8 +54,9 @@ func TestListApplicationCommands(t *testing.T) {
 			w.Write([]byte(mockResponse))
 		}))
 		defer func() { mockServer.Close() }()
-		Conf.discordAPI.baseURL = mockServer.URL
-		client := constructClient(Conf)
+		conf := GetConf()
+		conf.discordAPI.baseURL = mockServer.URL
+		client := constructClient(conf)
 
 		_, err := client.ListApplicationCommands(guildID)
 		require.Error(t, err)
@@ -66,8 +69,8 @@ func TestDeleteApplicationCommand(t *testing.T) {
 			w.WriteHeader(http.StatusNoContent)
 		}))
 		defer func() { mockServer.Close() }()
-		Conf.discordAPI.baseURL = mockServer.URL
-		client := constructClient(Conf)
+		conf := getMockConf(mockServer.URL)
+		client := constructClient(conf)
 
 		err := client.DeleteApplicationCommand("", "12345")
 		require.NoError(t, err)
@@ -77,8 +80,8 @@ func TestDeleteApplicationCommand(t *testing.T) {
 			w.WriteHeader(http.StatusNoContent)
 		}))
 		defer func() { mockServer.Close() }()
-		Conf.discordAPI.baseURL = mockServer.URL
-		client := constructClient(Conf)
+		conf := getMockConf(mockServer.URL)
+		client := constructClient(conf)
 
 		err := client.DeleteApplicationCommand("12345", "12345")
 		require.NoError(t, err)
@@ -88,8 +91,8 @@ func TestDeleteApplicationCommand(t *testing.T) {
 			w.WriteHeader(http.StatusUnauthorized)
 		}))
 		defer func() { mockServer.Close() }()
-		Conf.discordAPI.baseURL = mockServer.URL
-		client := constructClient(Conf)
+		conf := getMockConf(mockServer.URL)
+		client := constructClient(conf)
 
 		err := client.DeleteApplicationCommand("12345", "12345")
 		require.Error(t, err)
@@ -102,8 +105,8 @@ func TestCreateApplicationCommand(t *testing.T) {
 			w.WriteHeader(http.StatusCreated)
 		}))
 		defer func() { mockServer.Close() }()
-		Conf.discordAPI.baseURL = mockServer.URL
-		client := constructClient(Conf)
+		conf := getMockConf(mockServer.URL)
+		client := constructClient(conf)
 
 		err := client.CreateApplicationCommand("", &ApplicationCommand{})
 		require.NoError(t, err)
@@ -113,8 +116,8 @@ func TestCreateApplicationCommand(t *testing.T) {
 			w.WriteHeader(http.StatusCreated)
 		}))
 		defer func() { mockServer.Close() }()
-		Conf.discordAPI.baseURL = mockServer.URL
-		client := constructClient(Conf)
+		conf := getMockConf(mockServer.URL)
+		client := constructClient(conf)
 
 		err := client.CreateApplicationCommand("12345", &ApplicationCommand{})
 		require.NoError(t, err)
@@ -124,8 +127,8 @@ func TestCreateApplicationCommand(t *testing.T) {
 			w.WriteHeader(http.StatusUnauthorized)
 		}))
 		defer func() { mockServer.Close() }()
-		Conf.discordAPI.baseURL = mockServer.URL
-		client := constructClient(Conf)
+		conf := getMockConf(mockServer.URL)
+		client := constructClient(conf)
 
 		err := client.CreateApplicationCommand("12345", &ApplicationCommand{})
 		require.Error(t, err)
@@ -135,11 +138,17 @@ func TestCreateApplicationCommand(t *testing.T) {
 			w.WriteHeader(http.StatusOK)
 		}))
 		defer func() { mockServer.Close() }()
-		Conf.discordAPI.baseURL = mockServer.URL
-		client := constructClient(Conf)
+		conf := getMockConf(mockServer.URL)
+		client := constructClient(conf)
 
 		err := client.CreateApplicationCommand("12345", &ApplicationCommand{})
 		require.Error(t, err)
 		require.Equal(t, err, ErrAlreadyExists)
 	})
+}
+
+func getMockConf(url string) *Config {
+	conf := GetConf()
+	conf.discordAPI.baseURL = url
+	return conf
 }

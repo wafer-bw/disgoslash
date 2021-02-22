@@ -7,7 +7,7 @@ import (
 )
 
 var mockClient = &MockClient{}
-var syncerImpl = constructSyncer(mockClient, Conf)
+var syncerImpl = constructSyncer(mockClient, GetConf())
 
 // todo - TestNewSyncer()
 
@@ -17,8 +17,8 @@ func TestRun(t *testing.T) {
 		{ID: "B", Name: "testCommandB", Description: "desc"},
 	}
 	slashCommandMap := NewSlashCommandMap(
-		NewSlashCommand("testCommandA", applicationCommands[0], SlashCommandDo, true, []string{"12345"}),
-		NewSlashCommand("testCommandB", applicationCommands[1], SlashCommandDo, false, []string{"67890"}),
+		NewSlashCommand("testCommandA", applicationCommands[0], do, true, []string{"12345"}),
+		NewSlashCommand("testCommandB", applicationCommands[1], do, false, []string{"67890"}),
 	)
 
 	t.Run("success", func(t *testing.T) {

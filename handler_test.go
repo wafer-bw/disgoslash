@@ -15,9 +15,16 @@ import (
 var url = "http://localhost/api"
 var mockAuth = &MockAuth{}
 var interactionName = "interaction"
+var response = &InteractionResponse{
+	Type: InteractionResponseTypeChannelMessageWithSource,
+	Data: &InteractionApplicationCommandCallbackData{Content: "Hello World!"},
+}
+var do = func(request *InteractionRequest) (*InteractionResponse, error) {
+	return response, nil
+}
 var handlerImpl = constructHandler(mockAuth, NewSlashCommandMap(
-	NewSlashCommand(interactionName, &ApplicationCommand{Name: interactionName, Description: "desc"}, SlashCommandDo, true, []string{"11111"}),
-), Conf)
+	NewSlashCommand(interactionName, &ApplicationCommand{Name: interactionName, Description: "desc"}, do, true, []string{"11111"}),
+), GetConf())
 var handlerFunc = http.HandlerFunc(handlerImpl.Handle)
 
 func TestNewHandler(t *testing.T) {

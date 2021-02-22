@@ -1,22 +1,5 @@
 package disgoslash
 
-// MockSlashCommandName mocks a command name
-var MockSlashCommandName = "hello"
-
-// MockSlashCommandResponseContent mocks a command response message
-var MockSlashCommandResponseContent = "Hello World!"
-
-// MockInteractionResponse mocks an interaciton response object
-var MockInteractionResponse = &InteractionResponse{
-	Type: InteractionResponseTypeChannelMessageWithSource,
-	Data: &InteractionApplicationCommandCallbackData{Content: MockSlashCommandResponseContent},
-}
-
-// SlashCommandDo mocks a command `Do` function
-func SlashCommandDo(request *InteractionRequest) (*InteractionResponse, error) {
-	return MockInteractionResponse, nil
-}
-
 // GetConf returns a new instance of a mocked config object
 func GetConf() *Config {
 	return &Config{
@@ -32,6 +15,3 @@ func GetConf() *Config {
 		},
 	}
 }
-
-// Conf mocks the `Config` object
-var Conf = GetConf()
