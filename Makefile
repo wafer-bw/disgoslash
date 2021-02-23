@@ -30,6 +30,10 @@ tidy:
 	go mod tidy
 .PHONY: tidy
 
+doc:
+	godoc -http=:6060
+.PHONY: doc
+
 precommit:
 	make get
 	make mocks

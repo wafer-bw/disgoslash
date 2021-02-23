@@ -27,14 +27,6 @@ type Credentials struct {
 	Token     string
 }
 
-func newCreds() *Credentials {
-	return &Credentials{
-		PublicKey: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
-		ClientID:  "abc123",
-		Token:     "abc123",
-	}
-}
-
 // APIErrorResponse - Discord API error response object
 type APIErrorResponse struct {
 	Message    string  `json:"message"`
