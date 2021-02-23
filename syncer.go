@@ -4,14 +4,9 @@ import (
 	"log"
 )
 
-// syncer implements a `Syncer` interface's properties
-type syncer struct {
-	client Client
-}
-
-// Syncer interface methods
-type Syncer interface {
-	Run(guildIDs []string, slashCommandMap SlashCommandMap) []error
+// Syncer // todo
+type Syncer struct {
+	Client ClientInterface
 }
 
 type unregisterTarget struct {
@@ -20,18 +15,8 @@ type unregisterTarget struct {
 	name      string
 }
 
-// NewSyncer creates a new `Syncer` instance
-func NewSyncer(creds *Credentials) Syncer {
-	client := NewClient(creds)
-	return constructSyncer(client)
-}
-
-func constructSyncer(client Client) Syncer {
-	return &syncer{client: client}
-}
-
 // Run will reregister all of the provided slash commands
-func (syncer *syncer) Run(guildIDs []string, slashCommandMap SlashCommandMap) []error {
+func (syncer *Syncer) Run(guildIDs []string, slashCommandMap SlashCommandMap) []error {
 	allErrs := []error{}
 	unregisterTargets, errs := syncer.getCommandsToUnregister(guildIDs, slashCommandMap)
 	if len(errs) > 0 {
@@ -42,14 +27,14 @@ func (syncer *syncer) Run(guildIDs []string, slashCommandMap SlashCommandMap) []
 	return allErrs
 }
 
-func (syncer *syncer) getCommandsToUnregister(guildIDs []string, commandMap SlashCommandMap) ([]unregisterTarget, []error) {
+func (syncer *Syncer) getCommandsToUnregister(guildIDs []string, commandMap SlashCommandMap) ([]unregisterTarget, []error) {
 	errs := []error{}
 	log.Println("Collecting outdated commands...")
 	uniqueGuildIDs := syncer.getUniqueGuildIDs(guildIDs, commandMap)
 	unregisterTargets := []unregisterTarget{}
 	for _, guildID := range uniqueGuildIDs {
 		log.Printf("\t- Guild: %s\n", guildText(guildID))
-		commands, err := syncer.client.ListApplicationCommands(guildID)
+		commands, err := syncer.Client.ListApplicationCommands(guildID)
 		if err != nil {
 			log.Printf("\t\t- ERROR: %s\n", err.Error())
 			errs = append(errs, err)
@@ -67,13 +52,13 @@ func (syncer *syncer) getCommandsToUnregister(guildIDs []string, commandMap Slas
 	return unregisterTargets, errs
 }
 
-func (syncer *syncer) registerCommands(commandMap SlashCommandMap) []error {
+func (syncer *Syncer) registerCommands(commandMap SlashCommandMap) []error {
 	errs := []error{}
 	log.Println("Registering new commands...")
 	for _, command := range commandMap {
 		for _, guildID := range command.GuildIDs {
 			log.Printf("\t- Guild: %s, Command: %s\n", guildText(guildID), command.Name)
-			err := syncer.client.CreateApplicationCommand(guildID, command.AppCommand)
+			err := syncer.Client.CreateApplicationCommand(guildID, command.AppCommand)
 			if err != nil {
 				log.Printf("\t\t- ERROR: %s\n", err.Error())
 				errs = append(errs, err)
@@ -85,12 +70,12 @@ func (syncer *syncer) registerCommands(commandMap SlashCommandMap) []error {
 	return errs
 }
 
-func (syncer *syncer) unregisterCommands(unregisterTargets []unregisterTarget) []error {
+func (syncer *Syncer) unregisterCommands(unregisterTargets []unregisterTarget) []error {
 	errs := []error{}
 	log.Println("Unregistering outdated commands...")
 	for _, target := range unregisterTargets {
 		log.Printf("\t- Guild: %s, Command: %s\n", guildText(target.guildID), target.name)
-		err := syncer.client.DeleteApplicationCommand(target.guildID, target.commandID)
+		err := syncer.Client.DeleteApplicationCommand(target.guildID, target.commandID)
 		if err != nil {
 			log.Printf("\t\t- ERROR: %s\n", err.Error())
 			errs = append(errs, err)
@@ -101,7 +86,7 @@ func (syncer *syncer) unregisterCommands(unregisterTargets []unregisterTarget) [
 	return errs
 }
 
-func (syncer *syncer) getUniqueGuildIDs(guildIDs []string, commands SlashCommandMap) []string {
+func (syncer *Syncer) getUniqueGuildIDs(guildIDs []string, commands SlashCommandMap) []string {
 	uniqueGuildIDsMap := map[string]struct{}{
 		"": {}, // include global
 	}

@@ -25,6 +25,10 @@ todo
 * `models`
     * Finish Guild Model
 * Package
+    * Remove interfaces and mocks where applicable
+        * Determine what to do with `client`
+    * Reduce lengths of names of `discord` types and prefix with `Discord`
+    * Exported comment update pass
     * Coverage pass
     * todo pass
     * `doc.go`

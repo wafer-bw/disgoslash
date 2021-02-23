@@ -6,8 +6,8 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-var mockClient = &MockClient{}
-var syncerImpl = constructSyncer(mockClient)
+var mockClient = &MockClientInterface{}
+var syncerImpl = &Syncer{Client: mockClient}
 
 // todo - TestNewSyncer()
 

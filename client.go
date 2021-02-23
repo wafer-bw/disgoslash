@@ -10,26 +10,26 @@ import (
 	"time"
 )
 
-// client implements a `Client` interface's properties
-type client struct {
+// Client implements a `ClientInterface` interface's properties
+type Client struct {
 	apiURL  string
 	headers map[string]string
 }
 
-// Client interface methods
-type Client interface {
+// ClientInterface methods
+type ClientInterface interface {
 	ListApplicationCommands(guildID string) ([]*ApplicationCommand, error)
 	CreateApplicationCommand(guildID string, command *ApplicationCommand) error
 	DeleteApplicationCommand(guildID string, commandID string) error
 }
 
-// NewClient creates a new `Client` instance
-func NewClient(creds *Credentials) Client {
+// NewClient creates a new `ClientInterface` instance
+func NewClient(creds *Credentials) ClientInterface {
 	return constructClient(creds, newDiscordAPIConf())
 }
 
-func constructClient(creds *Credentials, dapi *discordAPI) Client {
-	return &client{
+func constructClient(creds *Credentials, dapi *discordAPI) ClientInterface {
+	return &Client{
 		apiURL: fmt.Sprintf("%s/%s/applications/%s", dapi.baseURL, dapi.apiVersion, creds.ClientID),
 		headers: map[string]string{
 			"Authorization": fmt.Sprintf("Bot %s", creds.Token),
@@ -38,7 +38,8 @@ func constructClient(creds *Credentials, dapi *discordAPI) Client {
 	}
 }
 
-func (client *client) ListApplicationCommands(guildID string) ([]*ApplicationCommand, error) {
+// ListApplicationCommands // todo
+func (client *Client) ListApplicationCommands(guildID string) ([]*ApplicationCommand, error) {
 	var url string
 	if guildID == "" {
 		url = fmt.Sprintf("%s/commands", client.apiURL)
@@ -48,7 +49,8 @@ func (client *client) ListApplicationCommands(guildID string) ([]*ApplicationCom
 	return client.listApplicationCommands(url)
 }
 
-func (client *client) CreateApplicationCommand(guildID string, command *ApplicationCommand) error {
+// CreateApplicationCommand // todo
+func (client *Client) CreateApplicationCommand(guildID string, command *ApplicationCommand) error {
 	var url string
 	if guildID == "" {
 		url = fmt.Sprintf("%s/commands", client.apiURL)
@@ -58,7 +60,8 @@ func (client *client) CreateApplicationCommand(guildID string, command *Applicat
 	return client.createApplicationCommand(url, command)
 }
 
-func (client *client) DeleteApplicationCommand(guildID string, commandID string) error {
+// DeleteApplicationCommand // todo
+func (client *Client) DeleteApplicationCommand(guildID string, commandID string) error {
 	var url string
 	if guildID == "" {
 		url = fmt.Sprintf("%s/commands/%s", client.apiURL, commandID)
@@ -68,7 +71,7 @@ func (client *client) DeleteApplicationCommand(guildID string, commandID string)
 	return client.deleteApplicationCommands(url)
 }
 
-func (client *client) listApplicationCommands(url string) ([]*ApplicationCommand, error) {
+func (client *Client) listApplicationCommands(url string) ([]*ApplicationCommand, error) {
 	status, data, err := request(http.MethodGet, url, client.headers, nil)
 	if err != nil {
 		return nil, err
@@ -82,7 +85,7 @@ func (client *client) listApplicationCommands(url string) ([]*ApplicationCommand
 	return *commands, nil
 }
 
-func (client *client) createApplicationCommand(url string, command *ApplicationCommand) error {
+func (client *Client) createApplicationCommand(url string, command *ApplicationCommand) error {
 	body, err := marshal(command)
 	if err != nil {
 		return err
@@ -97,7 +100,7 @@ func (client *client) createApplicationCommand(url string, command *ApplicationC
 	return nil
 }
 
-func (client *client) deleteApplicationCommands(url string) error {
+func (client *Client) deleteApplicationCommands(url string) error {
 	if status, data, err := request(http.MethodDelete, url, client.headers, nil); err != nil {
 		return err
 	} else if status != http.StatusNoContent {
