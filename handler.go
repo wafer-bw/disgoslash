@@ -19,8 +19,8 @@ type Handler interface {
 }
 
 // New returns a new `Handler` interface
-func New(slashCommandMap SlashCommandMap, creds *Credentials) Handler {
-	return constructHandler(NewAuth(creds), slashCommandMap)
+func New(slashCommandMap SlashCommandMap, publicKey string) Handler {
+	return constructHandler(NewAuth(publicKey), slashCommandMap)
 }
 
 func constructHandler(auth Auth, slashCommandMap SlashCommandMap) Handler {

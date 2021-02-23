@@ -25,8 +25,8 @@ todo
 * `models`
     * Finish Guild Model
 * Package
-    * See if auth can take a string instead of the creds object
     * Coverage pass
+    * todo pass
     * `doc.go`
     * Header comments
     * Examples
