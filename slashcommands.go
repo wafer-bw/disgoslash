@@ -8,20 +8,20 @@ import (
 
 // SlashCommand properties
 type SlashCommand struct {
-	Do         Do
+	Do         Action
 	Name       string
 	GuildIDs   []string
 	AppCommand *discord.ApplicationCommand
 }
 
-// Do work
-type Do func(request *discord.InteractionRequest) (*discord.InteractionResponse, error)
+// Action is the function that does the work for an interaction request
+type Action func(request *discord.InteractionRequest) (*discord.InteractionResponse, error)
 
 // SlashCommandMap of slash commands using the lowercase slash command name as keys
 type SlashCommandMap map[string]SlashCommand
 
 // NewSlashCommand creates a new `SlashCommand` object
-func NewSlashCommand(name string, appCommand *discord.ApplicationCommand, do Do, global bool, guildIDs []string) SlashCommand {
+func NewSlashCommand(name string, appCommand *discord.ApplicationCommand, do Action, global bool, guildIDs []string) SlashCommand {
 	if guildIDs == nil {
 		guildIDs = []string{}
 	}

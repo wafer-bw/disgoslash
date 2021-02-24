@@ -12,16 +12,13 @@ import (
 	discord "github.com/wafer-bw/disgoslash/discord"
 )
 
+const baseURL string = "https://discord.com/api"
+const apiVersion string = "v8"
+
 // Client implements a `ClientInterface` interface's properties
 type Client struct {
-	apiURL  string
-	headers map[string]string
-}
-
-type conf struct {
-	baseURL     string
-	apiVersion  string
-	contentType string
+	apiURL    string
+	authToken string
 }
 
 // ClientInterface methods
@@ -33,24 +30,13 @@ type ClientInterface interface {
 
 // NewClient creates a new `ClientInterface` instance
 func NewClient(creds *discord.Credentials) ClientInterface {
-	return constructClient(creds, newConf())
+	return constructClient(creds, baseURL, apiVersion)
 }
 
-func constructClient(creds *discord.Credentials, dapi *conf) ClientInterface {
+func constructClient(creds *discord.Credentials, baseURL string, apiVersion string) ClientInterface {
 	return &Client{
-		apiURL: fmt.Sprintf("%s/%s/applications/%s", dapi.baseURL, dapi.apiVersion, creds.ClientID),
-		headers: map[string]string{
-			"Authorization": fmt.Sprintf("Bot %s", creds.Token),
-			"Content-Type":  dapi.contentType,
-		},
-	}
-}
-
-func newConf() *conf {
-	return &conf{
-		baseURL:     "https://discord.com/api",
-		apiVersion:  "v8",
-		contentType: "application/json",
+		apiURL:    fmt.Sprintf("%s/%s/applications/%s", baseURL, apiVersion, creds.ClientID),
+		authToken: fmt.Sprintf("Bot %s", creds.Token),
 	}
 }
 
@@ -88,7 +74,7 @@ func (client *Client) DeleteApplicationCommand(guildID string, commandID string)
 }
 
 func (client *Client) listApplicationCommands(url string) ([]*discord.ApplicationCommand, error) {
-	status, data, err := request(http.MethodGet, url, client.headers, nil)
+	status, data, err := client.request(http.MethodGet, url, nil)
 	if err != nil {
 		return nil, err
 	} else if status != http.StatusOK {
@@ -106,7 +92,7 @@ func (client *Client) createApplicationCommand(url string, command *discord.Appl
 	if err != nil {
 		return err
 	}
-	if status, data, err := request(http.MethodPost, url, client.headers, body); err != nil {
+	if status, data, err := client.request(http.MethodPost, url, body); err != nil {
 		return err
 	} else if status == http.StatusOK {
 		return ErrAlreadyExists
@@ -117,7 +103,7 @@ func (client *Client) createApplicationCommand(url string, command *discord.Appl
 }
 
 func (client *Client) deleteApplicationCommands(url string) error {
-	if status, data, err := request(http.MethodDelete, url, client.headers, nil); err != nil {
+	if status, data, err := client.request(http.MethodDelete, url, nil); err != nil {
 		return err
 	} else if status != http.StatusNoContent {
 		return fmt.Errorf("%d - %s", status, string(data))
@@ -125,38 +111,23 @@ func (client *Client) deleteApplicationCommands(url string) error {
 	return nil
 }
 
-func unmarshal(body []byte, v interface{}) error {
-	if err := json.Unmarshal(body, v); err != nil {
-		return err
-	}
-	return nil
-}
-
-func marshal(v interface{}) (io.Reader, error) {
-	body, err := json.Marshal(v)
-	if err != nil {
-		return nil, err
-	}
-	return bytes.NewBuffer(body), nil
-}
-
-func request(method string, url string, headers map[string]string, body io.Reader) (int, []byte, error) {
+func (client *Client) request(method string, url string, body io.Reader) (int, []byte, error) {
 	attempts := 0
 	maxAttempts := 3
 
 	for attempts < maxAttempts {
 		attempts++
 
-		client := &http.Client{}
+		httpClient := &http.Client{}
 		request, err := http.NewRequest(method, url, body)
 		if err != nil {
 			return 0, nil, err
 		}
 
-		for key, val := range headers {
-			request.Header.Set(key, val)
-		}
-		response, err := client.Do(request)
+		request.Header.Set("content-type", "application/json")
+		request.Header.Set("authorization", client.authToken)
+
+		response, err := httpClient.Do(request)
 		if err != nil {
 			return 0, nil, err
 		}
@@ -184,6 +155,21 @@ func request(method string, url string, headers map[string]string, body io.Reade
 		time.Sleep(waitTime)
 	}
 	return 0, nil, ErrMaxRetries
+}
+
+func unmarshal(body []byte, v interface{}) error {
+	if err := json.Unmarshal(body, v); err != nil {
+		return err
+	}
+	return nil
+}
+
+func marshal(v interface{}) (io.Reader, error) {
+	body, err := json.Marshal(v)
+	if err != nil {
+		return nil, err
+	}
+	return bytes.NewBuffer(body), nil
 }
 
 func determineRetry(statusCode int, data []byte) (time.Duration, error) {

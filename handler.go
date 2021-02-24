@@ -14,7 +14,7 @@ import (
 // Handler implements a `Handler` interface's properties
 type Handler struct {
 	SlashCommandMap SlashCommandMap
-	PublicKey       string
+	Creds           *discord.Credentials
 }
 
 var pongResponse = &discord.InteractionResponse{
@@ -50,7 +50,7 @@ func (handler *Handler) resolve(r *http.Request) (*discord.InteractionRequest, e
 		return nil, err
 	}
 
-	if !verify(body, r.Header, handler.PublicKey) {
+	if !verify(body, r.Header, handler.Creds.PublicKey) {
 		return nil, ErrUnauthorized
 	}
 

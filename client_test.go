@@ -23,9 +23,7 @@ func TestListApplicationCommands(t *testing.T) {
 			w.Write([]byte(mockResponse))
 		}))
 		defer func() { mockServer.Close() }()
-		conf := newConf()
-		conf.baseURL = mockServer.URL
-		client := constructClient(&discord.Credentials{}, conf)
+		client := constructClient(&discord.Credentials{}, mockServer.URL, apiVersion)
 
 		commands, err := client.ListApplicationCommands("")
 		require.NoError(t, err)
@@ -39,9 +37,7 @@ func TestListApplicationCommands(t *testing.T) {
 			w.Write([]byte(mockResponse))
 		}))
 		defer func() { mockServer.Close() }()
-		conf := newConf()
-		conf.baseURL = mockServer.URL
-		client := constructClient(&discord.Credentials{}, conf)
+		client := constructClient(&discord.Credentials{}, mockServer.URL, apiVersion)
 
 		commands, err := client.ListApplicationCommands(guildID)
 		require.NoError(t, err)
@@ -55,9 +51,7 @@ func TestListApplicationCommands(t *testing.T) {
 			w.Write([]byte(mockResponse))
 		}))
 		defer func() { mockServer.Close() }()
-		dapi := newConf()
-		dapi.baseURL = mockServer.URL
-		client := constructClient(&discord.Credentials{}, dapi)
+		client := constructClient(&discord.Credentials{}, mockServer.URL, apiVersion)
 
 		_, err := client.ListApplicationCommands(guildID)
 		require.Error(t, err)
@@ -70,9 +64,7 @@ func TestDeleteApplicationCommand(t *testing.T) {
 			w.WriteHeader(http.StatusNoContent)
 		}))
 		defer func() { mockServer.Close() }()
-		dapi := newConf()
-		dapi.baseURL = mockServer.URL
-		client := constructClient(&discord.Credentials{}, dapi)
+		client := constructClient(&discord.Credentials{}, mockServer.URL, apiVersion)
 
 		err := client.DeleteApplicationCommand("", "12345")
 		require.NoError(t, err)
@@ -82,9 +74,7 @@ func TestDeleteApplicationCommand(t *testing.T) {
 			w.WriteHeader(http.StatusNoContent)
 		}))
 		defer func() { mockServer.Close() }()
-		dapi := newConf()
-		dapi.baseURL = mockServer.URL
-		client := constructClient(&discord.Credentials{}, dapi)
+		client := constructClient(&discord.Credentials{}, mockServer.URL, apiVersion)
 
 		err := client.DeleteApplicationCommand("12345", "12345")
 		require.NoError(t, err)
@@ -94,9 +84,7 @@ func TestDeleteApplicationCommand(t *testing.T) {
 			w.WriteHeader(http.StatusUnauthorized)
 		}))
 		defer func() { mockServer.Close() }()
-		dapi := newConf()
-		dapi.baseURL = mockServer.URL
-		client := constructClient(&discord.Credentials{}, dapi)
+		client := constructClient(&discord.Credentials{}, mockServer.URL, apiVersion)
 
 		err := client.DeleteApplicationCommand("12345", "12345")
 		require.Error(t, err)
@@ -109,9 +97,7 @@ func TestCreateApplicationCommand(t *testing.T) {
 			w.WriteHeader(http.StatusCreated)
 		}))
 		defer func() { mockServer.Close() }()
-		dapi := newConf()
-		dapi.baseURL = mockServer.URL
-		client := constructClient(&discord.Credentials{}, dapi)
+		client := constructClient(&discord.Credentials{}, mockServer.URL, apiVersion)
 
 		err := client.CreateApplicationCommand("", &discord.ApplicationCommand{})
 		require.NoError(t, err)
@@ -121,9 +107,7 @@ func TestCreateApplicationCommand(t *testing.T) {
 			w.WriteHeader(http.StatusCreated)
 		}))
 		defer func() { mockServer.Close() }()
-		dapi := newConf()
-		dapi.baseURL = mockServer.URL
-		client := constructClient(&discord.Credentials{}, dapi)
+		client := constructClient(&discord.Credentials{}, mockServer.URL, apiVersion)
 
 		err := client.CreateApplicationCommand("12345", &discord.ApplicationCommand{})
 		require.NoError(t, err)
@@ -133,9 +117,7 @@ func TestCreateApplicationCommand(t *testing.T) {
 			w.WriteHeader(http.StatusUnauthorized)
 		}))
 		defer func() { mockServer.Close() }()
-		dapi := newConf()
-		dapi.baseURL = mockServer.URL
-		client := constructClient(&discord.Credentials{}, dapi)
+		client := constructClient(&discord.Credentials{}, mockServer.URL, apiVersion)
 
 		err := client.CreateApplicationCommand("12345", &discord.ApplicationCommand{})
 		require.Error(t, err)
@@ -145,9 +127,7 @@ func TestCreateApplicationCommand(t *testing.T) {
 			w.WriteHeader(http.StatusOK)
 		}))
 		defer func() { mockServer.Close() }()
-		dapi := newConf()
-		dapi.baseURL = mockServer.URL
-		client := constructClient(&discord.Credentials{}, dapi)
+		client := constructClient(&discord.Credentials{}, mockServer.URL, apiVersion)
 
 		err := client.CreateApplicationCommand("12345", &discord.ApplicationCommand{})
 		require.Error(t, err)

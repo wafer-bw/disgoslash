@@ -1,8 +1,5 @@
 package discord
 
-const BaseURL string = "https://discord.com/api"
-const APIVersion string = "v8"
-
 // Credentials required from your Discord application & bot
 type Credentials struct {
 	PublicKey string

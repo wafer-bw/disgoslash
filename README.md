@@ -6,6 +6,7 @@ A Golang serverless Discord slash command helper library written for Vercel Serv
 [![Go Report Card](https://goreportcard.com/badge/github.com/wafer-bw/disgoslash)](https://goreportcard.com/report/github.com/wafer-bw/disgoslash)
 ![CodeQL](https://github.com/wafer-bw/disgoslash/workflows/CodeQL/badge.svg)
 [![Coverage Status](https://coveralls.io/repos/github/wafer-bw/disgoslash/badge.svg)](https://coveralls.io/github/wafer-bw/disgoslash)
+[![Go Reference](https://pkg.go.dev/badge/github.com/wafer-bw/disgoslash.svg)](https://pkg.go.dev/github.com/wafer-bw/disgoslash)
 
 ## Getting Started
 
@@ -24,9 +25,7 @@ A Golang serverless Discord slash command helper library written for Vercel Serv
     * exported comment update pass
     * coverage pass
     * todo pass
-    * `doc.go`
-    * header comments
-    * examples
+    * examples in `*_test.go` files
     * stable version release
 * usage
     * add usage section to readme
