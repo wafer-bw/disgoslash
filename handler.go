@@ -7,6 +7,8 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+
+	"github.com/wafer-bw/disgoslash/discord"
 )
 
 // Handler implements a `Handler` interface's properties
@@ -15,8 +17,8 @@ type Handler struct {
 	PublicKey       string
 }
 
-var pongResponse = &InteractionResponse{
-	Type: InteractionResponseTypePong,
+var pongResponse = &discord.InteractionResponse{
+	Type: discord.InteractionResponseTypePong,
 }
 
 // Handle handles incoming HTTP requests
@@ -42,7 +44,7 @@ func (handler *Handler) Handle(w http.ResponseWriter, r *http.Request) {
 	handler.respond(w, body, nil)
 }
 
-func (handler *Handler) resolve(r *http.Request) (*InteractionRequest, error) {
+func (handler *Handler) resolve(r *http.Request) (*discord.InteractionRequest, error) {
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
 		return nil, err
@@ -55,18 +57,18 @@ func (handler *Handler) resolve(r *http.Request) (*InteractionRequest, error) {
 	return handler.unmarshal(body)
 }
 
-func (handler *Handler) triage(interaction *InteractionRequest) (*InteractionResponse, error) {
+func (handler *Handler) triage(interaction *discord.InteractionRequest) (*discord.InteractionResponse, error) {
 	switch interaction.Type {
-	case InteractionTypePing:
+	case discord.InteractionTypePing:
 		return pongResponse, nil
-	case InteractionTypeApplicationCommand:
+	case discord.InteractionTypeApplicationCommand:
 		return handler.execute(interaction)
 	default:
 		return nil, ErrInvalidInteractionType
 	}
 }
 
-func (handler *Handler) execute(interaction *InteractionRequest) (*InteractionResponse, error) {
+func (handler *Handler) execute(interaction *discord.InteractionRequest) (*discord.InteractionResponse, error) {
 	slashCommand, ok := handler.SlashCommandMap[interaction.Data.Name]
 	if !ok {
 		return nil, ErrNotImplemented
@@ -92,15 +94,15 @@ func (handler *Handler) respond(w http.ResponseWriter, body []byte, err error) {
 	}
 }
 
-func (handler *Handler) unmarshal(data []byte) (*InteractionRequest, error) {
-	interaction := &InteractionRequest{}
+func (handler *Handler) unmarshal(data []byte) (*discord.InteractionRequest, error) {
+	interaction := &discord.InteractionRequest{}
 	if err := json.Unmarshal(data, interaction); err != nil {
 		return nil, err
 	}
 	return interaction, nil
 }
 
-func (handler *Handler) marshal(response *InteractionResponse) ([]byte, error) {
+func (handler *Handler) marshal(response *discord.InteractionResponse) ([]byte, error) {
 	return json.Marshal(response)
 }
 

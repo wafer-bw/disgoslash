@@ -12,29 +12,39 @@ A Golang serverless Discord slash command helper library written for Vercel Serv
 ### Prerequisites
 * [Golang](https://golang.org/dl/)
 * [Vercel](https://vercel.com/)
-* [Discord](https://discord.com/)
-* [Discord Application](https://discord.com/developers/applications)
-
-### Usage
-todo
+* [Discord Server](https://discord.com/)
+    * Server `Guild ID`
+* [Discord Application & Bot](https://discord.com/developers/applications)
+    * Application `Public Key`
+    * Application `Client ID`
+    * Bot `Token`
 
 ## TODOs
+* package
+    * exported comment update pass
+    * coverage pass
+    * todo pass
+    * `doc.go`
+    * header comments
+    * examples
+    * stable version release
+* usage
+    * add usage section to readme
 * `client`
+    * cleanup struct usage
+    * add tests for retry code
+    * add tests for uncovered code
     * EditGlobalApplicationCommand
     * EditGuildApplicationCommand
 * `models`
-    * Finish Guild Model
-* Package
-    * Remove interfaces and mocks where applicable
-        * Determine what to do with `client`
-    * Reduce lengths of names of `discord` types and prefix with `Discord`
-    * Exported comment update pass
-    * Coverage pass
-    * todo pass
-    * `doc.go`
-    * Header comments
-    * Examples
-    * Stable Version Release
+    * finish Guild Model
+* `exporter`
+    * export commands to json
+* `cmd/disgoslash.go`
+    * list commands
+    * unregister commands
+    * register commands
+
 
 ## References
 * [discordgo](https://github.com/bwmarrin/discordgo) - ed25519 auth

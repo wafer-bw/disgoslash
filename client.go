@@ -8,6 +8,8 @@ import (
 	"io/ioutil"
 	"net/http"
 	"time"
+
+	discord "github.com/wafer-bw/disgoslash/discord"
 )
 
 // Client implements a `ClientInterface` interface's properties
@@ -16,19 +18,25 @@ type Client struct {
 	headers map[string]string
 }
 
+type conf struct {
+	baseURL     string
+	apiVersion  string
+	contentType string
+}
+
 // ClientInterface methods
 type ClientInterface interface {
-	ListApplicationCommands(guildID string) ([]*ApplicationCommand, error)
-	CreateApplicationCommand(guildID string, command *ApplicationCommand) error
+	ListApplicationCommands(guildID string) ([]*discord.ApplicationCommand, error)
+	CreateApplicationCommand(guildID string, command *discord.ApplicationCommand) error
 	DeleteApplicationCommand(guildID string, commandID string) error
 }
 
 // NewClient creates a new `ClientInterface` instance
-func NewClient(creds *Credentials) ClientInterface {
-	return constructClient(creds, newDiscordAPIConf())
+func NewClient(creds *discord.Credentials) ClientInterface {
+	return constructClient(creds, newConf())
 }
 
-func constructClient(creds *Credentials, dapi *discordAPI) ClientInterface {
+func constructClient(creds *discord.Credentials, dapi *conf) ClientInterface {
 	return &Client{
 		apiURL: fmt.Sprintf("%s/%s/applications/%s", dapi.baseURL, dapi.apiVersion, creds.ClientID),
 		headers: map[string]string{
@@ -38,8 +46,16 @@ func constructClient(creds *Credentials, dapi *discordAPI) ClientInterface {
 	}
 }
 
+func newConf() *conf {
+	return &conf{
+		baseURL:     "https://discord.com/api",
+		apiVersion:  "v8",
+		contentType: "application/json",
+	}
+}
+
 // ListApplicationCommands // todo
-func (client *Client) ListApplicationCommands(guildID string) ([]*ApplicationCommand, error) {
+func (client *Client) ListApplicationCommands(guildID string) ([]*discord.ApplicationCommand, error) {
 	var url string
 	if guildID == "" {
 		url = fmt.Sprintf("%s/commands", client.apiURL)
@@ -50,7 +66,7 @@ func (client *Client) ListApplicationCommands(guildID string) ([]*ApplicationCom
 }
 
 // CreateApplicationCommand // todo
-func (client *Client) CreateApplicationCommand(guildID string, command *ApplicationCommand) error {
+func (client *Client) CreateApplicationCommand(guildID string, command *discord.ApplicationCommand) error {
 	var url string
 	if guildID == "" {
 		url = fmt.Sprintf("%s/commands", client.apiURL)
@@ -71,21 +87,21 @@ func (client *Client) DeleteApplicationCommand(guildID string, commandID string)
 	return client.deleteApplicationCommands(url)
 }
 
-func (client *Client) listApplicationCommands(url string) ([]*ApplicationCommand, error) {
+func (client *Client) listApplicationCommands(url string) ([]*discord.ApplicationCommand, error) {
 	status, data, err := request(http.MethodGet, url, client.headers, nil)
 	if err != nil {
 		return nil, err
 	} else if status != http.StatusOK {
 		return nil, fmt.Errorf("%d - %s", status, string(data))
 	}
-	commands := &[]*ApplicationCommand{}
+	commands := &[]*discord.ApplicationCommand{}
 	if err := unmarshal(data, commands); err != nil {
 		return nil, err
 	}
 	return *commands, nil
 }
 
-func (client *Client) createApplicationCommand(url string, command *ApplicationCommand) error {
+func (client *Client) createApplicationCommand(url string, command *discord.ApplicationCommand) error {
 	body, err := marshal(command)
 	if err != nil {
 		return err
@@ -174,7 +190,7 @@ func determineRetry(statusCode int, data []byte) (time.Duration, error) {
 	if statusCode != http.StatusTooManyRequests {
 		return 0, nil
 	}
-	responseErr := &APIErrorResponse{}
+	responseErr := &discord.APIErrorResponse{}
 	if err := unmarshal(data, responseErr); err != nil {
 		return 0, err
 	}

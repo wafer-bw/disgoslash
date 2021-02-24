@@ -11,22 +11,23 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/require"
+	"github.com/wafer-bw/disgoslash/discord"
 )
 
 //nolint
 var publicKey, privateKey, _ = ed25519.GenerateKey(nil)
 var url = "http://localhost/api"
 var interactionName = "interaction"
-var response = &InteractionResponse{
-	Type: InteractionResponseTypeChannelMessageWithSource,
-	Data: &InteractionApplicationCommandCallbackData{Content: "Hello World!"},
+var response = &discord.InteractionResponse{
+	Type: discord.InteractionResponseTypeChannelMessageWithSource,
+	Data: &discord.InteractionApplicationCommandCallbackData{Content: "Hello World!"},
 }
-var do = func(request *InteractionRequest) (*InteractionResponse, error) {
+var do = func(request *discord.InteractionRequest) (*discord.InteractionResponse, error) {
 	return response, nil
 }
 var handler = &Handler{
 	PublicKey:       hex.EncodeToString(publicKey),
-	SlashCommandMap: NewSlashCommandMap(NewSlashCommand(interactionName, &ApplicationCommand{Name: interactionName, Description: "desc"}, do, true, []string{"11111"})),
+	SlashCommandMap: NewSlashCommandMap(NewSlashCommand(interactionName, &discord.ApplicationCommand{Name: interactionName, Description: "desc"}, do, true, []string{"11111"})),
 }
 var handlerFunc = http.HandlerFunc(handler.Handle)
 
@@ -40,9 +41,9 @@ func TestHandle(t *testing.T) {
 	})
 
 	t.Run("success/run interaction", func(t *testing.T) {
-		interaction := &InteractionRequest{
-			Type: InteractionTypeApplicationCommand,
-			Data: &ApplicationCommandInteractionData{Name: interactionName},
+		interaction := &discord.InteractionRequest{
+			Type: discord.InteractionTypeApplicationCommand,
+			Data: &discord.ApplicationCommandInteractionData{Name: interactionName},
 		}
 		data, err := json.Marshal(interaction)
 		require.NoError(t, err)
@@ -54,9 +55,9 @@ func TestHandle(t *testing.T) {
 	})
 
 	t.Run("failure/unimplemented interaction", func(t *testing.T) {
-		data, err := json.Marshal(&InteractionRequest{
-			Type: InteractionTypeApplicationCommand,
-			Data: &ApplicationCommandInteractionData{Name: interactionName + "Z"},
+		data, err := json.Marshal(&discord.InteractionRequest{
+			Type: discord.InteractionTypeApplicationCommand,
+			Data: &discord.ApplicationCommandInteractionData{Name: interactionName + "Z"},
 		})
 		require.NoError(t, err)
 		requestBody := string(data)
