@@ -11,8 +11,8 @@ import (
 // Deps defines `Authorization` dependencies
 type Deps struct{}
 
-// impl implements `Authorization` properties
-type impl struct {
+// Auth implements `Authorization` properties
+type Auth struct {
 	deps *Deps
 	conf *config.Config
 }
@@ -24,12 +24,12 @@ type Authorization interface {
 
 // New returns a new `Authorization` interface
 func New(deps *Deps, conf *config.Config) Authorization {
-	return &impl{deps: deps, conf: conf}
+	return &Auth{deps: deps, conf: conf}
 }
 
 // Verify verifies that requests from discord are authorized using ed25519
 // https://discord.com/developers/docs/interactions/slash-commands#security-and-authorization
-func (impl *impl) Verify(rawBody []byte, headers http.Header) bool {
+func (auth *Auth) Verify(rawBody []byte, headers http.Header) bool {
 	signature := headers.Get("x-signature-ed25519")
 	if signature == "" {
 		return false
@@ -49,7 +49,7 @@ func (impl *impl) Verify(rawBody []byte, headers http.Header) bool {
 		return false
 	}
 
-	keyBytes, err := hex.DecodeString(impl.conf.Credentials.PublicKey)
+	keyBytes, err := hex.DecodeString(auth.conf.Credentials.PublicKey)
 	if err != nil {
 		return false
 	}
