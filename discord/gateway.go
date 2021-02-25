@@ -1,4 +1,4 @@
-package models
+package discord
 
 // Presence - A user's current state on a guild
 type Presence struct {

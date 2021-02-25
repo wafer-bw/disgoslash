@@ -1,4 +1,4 @@
-package models
+package discord
 
 import "time"
 

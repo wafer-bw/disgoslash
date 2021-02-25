@@ -1,4 +1,4 @@
-package models
+package discord
 
 // https://discord.com/developers/docs/resources/user
 

@@ -3,20 +3,19 @@ get:
 .PHONY: get
 
 mocks:
-	rm -rf generatedmocks/*
-	mockery --all --output="generatedmocks" --keeptree
+	mockery --name "ClientInterface" --structname "mockClientInterface" --filename "client_mock.go" --inpackage
 .PHONY: mocks
 
 test:
-	go test -coverprofile=cover.out `go list ./... | grep -v ./generatedmocks`
+	go test -coverprofile=cover.out
 .PHONY: test
 
 testv:
-	go test -v -coverprofile=cover.out `go list ./... | grep -v ./generatedmocks`
+	go test -v -coverprofile=cover.out
 .PHONY: test
 
 test-ci:
-	go test -covermode=count -coverprofile=coverage.out `go list ./... | grep -v ./generatedmocks`
+	go test -covermode=count -coverprofile=coverage.out
 .PHONY: test
 
 lint:
@@ -30,6 +29,10 @@ fmt:
 tidy:
 	go mod tidy
 .PHONY: tidy
+
+doc:
+	godoc -http=:6060
+.PHONY: doc
 
 precommit:
 	make get

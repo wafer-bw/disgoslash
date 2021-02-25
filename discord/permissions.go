@@ -1,4 +1,4 @@
-package models
+package discord
 
 // Role - A set of permissions attached to a group of users
 type Role struct {
