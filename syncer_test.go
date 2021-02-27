@@ -5,6 +5,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 	"github.com/wafer-bw/disgoslash/discord"
+	"github.com/wafer-bw/disgoslash/errs"
 )
 
 var mockClient = &mockClientInterface{}
@@ -42,14 +43,14 @@ func TestSync(t *testing.T) {
 
 		mockClient.On("ListApplicationCommands", "").Return([]*discord.ApplicationCommand{applicationCommands[0]}, nil).Times(1)
 		mockClient.On("ListApplicationCommands", "12345").Return([]*discord.ApplicationCommand{applicationCommands[0]}, nil).Times(1)
-		mockClient.On("ListApplicationCommands", "67890").Return(nil, ErrForbidden).Times(1)
+		mockClient.On("ListApplicationCommands", "67890").Return(nil, errs.ErrForbidden).Times(1)
 
-		mockClient.On("DeleteApplicationCommand", "", "A").Return(ErrMaxRetries).Times(1)
+		mockClient.On("DeleteApplicationCommand", "", "A").Return(errs.ErrMaxRetries).Times(1)
 		mockClient.On("DeleteApplicationCommand", "12345", "A").Return(nil).Times(1)
 
 		mockClient.On("CreateApplicationCommand", "", applicationCommands[0]).Return(nil).Times(1)
 		mockClient.On("CreateApplicationCommand", "12345", applicationCommands[0]).Return(nil).Times(1)
-		mockClient.On("CreateApplicationCommand", "67890", applicationCommands[1]).Return(ErrForbidden).Times(1)
+		mockClient.On("CreateApplicationCommand", "67890", applicationCommands[1]).Return(errs.ErrForbidden).Times(1)
 
 		errs := syncer.Sync()
 		require.Equal(t, 3, len(errs))

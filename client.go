@@ -10,6 +10,7 @@ import (
 	"time"
 
 	discord "github.com/wafer-bw/disgoslash/discord"
+	"github.com/wafer-bw/disgoslash/errs"
 )
 
 const baseURL string = "https://discord.com/api"
@@ -95,7 +96,7 @@ func (client *Client) createApplicationCommand(url string, command *discord.Appl
 	if status, data, err := client.request(http.MethodPost, url, body); err != nil {
 		return err
 	} else if status == http.StatusOK {
-		return ErrAlreadyExists
+		return errs.ErrAlreadyExists
 	} else if status != http.StatusCreated {
 		return fmt.Errorf("%d - %s", status, string(data))
 	}
@@ -134,9 +135,9 @@ func (client *Client) request(method string, url string, body io.Reader) (int, [
 
 		switch response.StatusCode {
 		case http.StatusForbidden:
-			return 0, nil, ErrForbidden
+			return 0, nil, errs.ErrForbidden
 		case http.StatusUnauthorized:
-			return 0, nil, ErrUnauthorized
+			return 0, nil, errs.ErrUnauthorized
 		}
 
 		data, err := ioutil.ReadAll(response.Body)
@@ -154,7 +155,7 @@ func (client *Client) request(method string, url string, body io.Reader) (int, [
 		}
 		time.Sleep(waitTime)
 	}
-	return 0, nil, ErrMaxRetries
+	return 0, nil, errs.ErrMaxRetries
 }
 
 func unmarshal(body []byte, v interface{}) error {

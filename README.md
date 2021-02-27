@@ -8,6 +8,10 @@ A Golang serverless Discord slash command helper library written for Vercel Serv
 [![Coverage Status](https://coveralls.io/repos/github/wafer-bw/disgoslash/badge.svg)](https://coveralls.io/github/wafer-bw/disgoslash)
 [![Go Reference](https://pkg.go.dev/badge/github.com/wafer-bw/disgoslash.svg)](https://pkg.go.dev/github.com/wafer-bw/disgoslash)
 
+```sh
+go get github.com/wafer-bw/disgoslash
+```
+
 ## Getting Started
 
 ### Prerequisites
@@ -21,32 +25,37 @@ A Golang serverless Discord slash command helper library written for Vercel Serv
     * Bot `Token`
 
 ## TODOs
-* discord
-    * collapse and move into `disgoslash` package
 * readme
     * table of contents
+    * example project
 * package
-    * exported comment update pass
-    * coverage pass
+    * test coverage pass
     * todo pass
-    * examples in `*_test.go` files
     * stable version release
-* usage
-    * add usage section to readme
 * `client`
+    * consider making private otherwise
+        * exported comments
+        * examples
     * cleanup struct usage
     * add tests for retry/rate-limit handling code
     * add tests for uncovered code
     * EditGlobalApplicationCommand
     * EditGuildApplicationCommand
+* `handler`
+    * exported comments
+    * examples
+* `syncer`
+    * exported comments
+    * examples
 * `models`
     * finish Guild Model
-* `exporter`
-    * export commands to json
-* `cmd/disgoslash.go`
-    * list commands
-    * unregister commands
-    * register commands
+* import/export
+    * `exporter`
+        * export commands to json
+    * `cmd/disgoslash.go`
+        * list commands
+        * unregister commands
+        * register commands
 
 
 ## References

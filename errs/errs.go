@@ -1,4 +1,4 @@
-package disgoslash
+package errs
 
 import "errors"
 

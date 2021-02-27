@@ -86,7 +86,7 @@ func (syncer *Syncer) registerCommands(commandMap SlashCommandMap) []error {
 	for _, command := range commandMap {
 		for _, guildID := range command.GuildIDs {
 			log.Printf("\t- Guild: %s, Command: %s\n", guildText(guildID), command.Name)
-			err := syncer.client.CreateApplicationCommand(guildID, command.AppCommand)
+			err := syncer.client.CreateApplicationCommand(guildID, command.ApplicationCommand)
 			if err != nil {
 				log.Printf("\t\t- ERROR: %s\n", err.Error())
 				errs = append(errs, err)

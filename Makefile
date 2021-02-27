@@ -31,7 +31,7 @@ tidy:
 .PHONY: tidy
 
 doc:
-	godoc -http=:6060
+	godoc -http=:6060 -play
 .PHONY: doc
 
 precommit:

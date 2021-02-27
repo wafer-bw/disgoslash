@@ -8,6 +8,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 	"github.com/wafer-bw/disgoslash/discord"
+	"github.com/wafer-bw/disgoslash/errs"
 )
 
 var guildID = "1234567890"
@@ -131,6 +132,6 @@ func TestCreateApplicationCommand(t *testing.T) {
 
 		err := client.CreateApplicationCommand("12345", &discord.ApplicationCommand{})
 		require.Error(t, err)
-		require.Equal(t, err, ErrAlreadyExists)
+		require.Equal(t, err, errs.ErrAlreadyExists)
 	})
 }
