@@ -21,7 +21,7 @@ type Action func(request *discord.InteractionRequest) (*discord.InteractionRespo
 type SlashCommandMap map[string]SlashCommand
 
 // NewSlashCommand creates a new `SlashCommand` object
-func NewSlashCommand(name string, appCommand *discord.ApplicationCommand, do Action, global bool, guildIDs []string) SlashCommand {
+func NewSlashCommand(appCommand *discord.ApplicationCommand, do Action, global bool, guildIDs []string) SlashCommand {
 	if guildIDs == nil {
 		guildIDs = []string{}
 	}
@@ -29,7 +29,7 @@ func NewSlashCommand(name string, appCommand *discord.ApplicationCommand, do Act
 		guildIDs = append(guildIDs, "")
 	}
 	return SlashCommand{
-		Name:       strings.ToLower(name),
+		Name:       strings.ToLower(appCommand.Name),
 		AppCommand: appCommand,
 		Do:         do,
 		GuildIDs:   guildIDs,

@@ -21,6 +21,10 @@ A Golang serverless Discord slash command helper library written for Vercel Serv
     * Bot `Token`
 
 ## TODOs
+* discord
+    * collapse and move into `disgoslash` package
+* readme
+    * table of contents
 * package
     * exported comment update pass
     * coverage pass
@@ -31,7 +35,7 @@ A Golang serverless Discord slash command helper library written for Vercel Serv
     * add usage section to readme
 * `client`
     * cleanup struct usage
-    * add tests for retry code
+    * add tests for retry/rate-limit handling code
     * add tests for uncovered code
     * EditGlobalApplicationCommand
     * EditGuildApplicationCommand

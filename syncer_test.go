@@ -15,8 +15,8 @@ func TestSync(t *testing.T) {
 		{ID: "B", Name: "testCommandB", Description: "desc"},
 	}
 	slashCommandMap := NewSlashCommandMap(
-		NewSlashCommand("testCommandA", applicationCommands[0], do, true, []string{"12345"}),
-		NewSlashCommand("testCommandB", applicationCommands[1], do, false, []string{"67890"}),
+		NewSlashCommand(applicationCommands[0], do, true, []string{"12345"}),
+		NewSlashCommand(applicationCommands[1], do, false, []string{"67890"}),
 	)
 
 	t.Run("success", func(t *testing.T) {
@@ -54,16 +54,4 @@ func TestSync(t *testing.T) {
 		errs := syncer.Sync()
 		require.Equal(t, 3, len(errs))
 	})
-}
-
-func ExampleSyncer_Sync() {
-	creds := &discord.Credentials{} // Use your Discord application & bot credentials
-	commands := SlashCommandMap{}   // Use your slash commands
-	guildIDs := []string{}          // List your guild (server) IDs
-	syncer := &Syncer{
-		SlashCommandMap: commands,
-		GuildIDs:        guildIDs,
-		Creds:           creds,
-	}
-	syncer.Sync()
 }

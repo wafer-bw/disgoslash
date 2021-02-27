@@ -27,7 +27,7 @@ var do = func(request *discord.InteractionRequest) (*discord.InteractionResponse
 }
 var handler = &Handler{
 	Creds:           &discord.Credentials{PublicKey: hex.EncodeToString(publicKey)},
-	SlashCommandMap: NewSlashCommandMap(NewSlashCommand(interactionName, &discord.ApplicationCommand{Name: interactionName, Description: "desc"}, do, true, []string{"11111"})),
+	SlashCommandMap: NewSlashCommandMap(NewSlashCommand(&discord.ApplicationCommand{Name: interactionName, Description: "desc"}, do, true, []string{"11111"})),
 }
 var handlerFunc = http.HandlerFunc(handler.Handle)
 
@@ -201,14 +201,4 @@ func httpTestRequest(method string, url string, headers map[string]string, body 
 	response := recorder.Result()
 	responseBody, err := ioutil.ReadAll(recorder.Body)
 	return responseBody, response, err
-}
-
-func ExampleHandler_Handle() {
-	creds := &discord.Credentials{} // Use your Discord application & bot credentials
-	commands := SlashCommandMap{}   // Use your slash commands
-	handler := &Handler{
-		SlashCommandMap: commands,
-		Creds:           creds,
-	}
-	http.HandleFunc("/", handler.Handle)
 }
