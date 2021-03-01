@@ -28,13 +28,8 @@ go get github.com/wafer-bw/disgoslash
     * table of contents
     * example project
 * package
-    * test coverage pass
-    * todo pass
     * stable version release
 * `client`
-    * verify retry logic works
-    * add tests for retry/rate-limit handling code
-    * add tests for uncovered code
     * EditGlobalApplicationCommand
     * EditGuildApplicationCommand
 * `syncer`

@@ -51,7 +51,7 @@ func (syncer *Syncer) getCommandsToUnregister() ([]unregisterTarget, []error) {
 	unregisterTargets := []unregisterTarget{}
 	for _, guildID := range uniqueGuildIDs {
 		log.Printf("\t- Guild: %s\n", guildText(guildID))
-		commands, err := syncer.client.ListApplicationCommands(guildID)
+		commands, err := syncer.client.list(guildID)
 		if err != nil {
 			log.Printf("\t\t- ERROR: %s\n", err.Error())
 			errs = append(errs, err)
@@ -74,7 +74,7 @@ func (syncer *Syncer) unregisterCommands(unregisterTargets []unregisterTarget) [
 	log.Println("Unregistering outdated commands...")
 	for _, target := range unregisterTargets {
 		log.Printf("\t- Guild: %s, Command: %s\n", guildText(target.guildID), target.name)
-		err := syncer.client.DeleteApplicationCommand(target.guildID, target.commandID)
+		err := syncer.client.delete(target.guildID, target.commandID)
 		if err != nil {
 			log.Printf("\t\t- ERROR: %s\n", err.Error())
 			errs = append(errs, err)
@@ -91,7 +91,7 @@ func (syncer *Syncer) registerCommands(commandMap SlashCommandMap) []error {
 	for _, command := range commandMap {
 		for _, guildID := range command.GuildIDs {
 			log.Printf("\t- Guild: %s, Command: %s\n", guildText(guildID), command.Name)
-			err := syncer.client.CreateApplicationCommand(guildID, command.ApplicationCommand)
+			err := syncer.client.create(guildID, command.ApplicationCommand)
 			if err != nil {
 				log.Printf("\t\t- ERROR: %s\n", err.Error())
 				errs = append(errs, err)

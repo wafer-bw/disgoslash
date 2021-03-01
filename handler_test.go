@@ -32,14 +32,12 @@ var handler = &Handler{
 var handlerFunc = http.HandlerFunc(handler.Handle)
 
 func TestHandle(t *testing.T) {
-
 	t.Run("success/respond to ping", func(t *testing.T) {
 		requestBody := `{"type":1}`
 		body, resp, err := httpTestRequest(http.MethodGet, url, getAuthHeaders(requestBody), requestBody)
 		require.NoError(t, err)
 		require.Equal(t, http.StatusOK, resp.StatusCode, string(body))
 	})
-
 	t.Run("success/run interaction", func(t *testing.T) {
 		interaction := &discord.InteractionRequest{
 			Type: discord.InteractionTypeApplicationCommand,
@@ -53,7 +51,6 @@ func TestHandle(t *testing.T) {
 		require.NoError(t, err)
 		require.Equal(t, http.StatusOK, resp.StatusCode, string(body))
 	})
-
 	t.Run("failure/unimplemented interaction", func(t *testing.T) {
 		data, err := json.Marshal(&discord.InteractionRequest{
 			Type: discord.InteractionTypeApplicationCommand,
@@ -66,7 +63,6 @@ func TestHandle(t *testing.T) {
 		require.NoError(t, err)
 		require.Equal(t, http.StatusNotImplemented, resp.StatusCode, string(body))
 	})
-
 	t.Run("failure/invalid interaction type", func(t *testing.T) {
 		requestBody := `{"type": 3}`
 
@@ -74,7 +70,6 @@ func TestHandle(t *testing.T) {
 		require.NoError(t, err)
 		require.Equal(t, http.StatusBadRequest, resp.StatusCode, string(body))
 	})
-
 	t.Run("failure/unauthorized", func(t *testing.T) {
 		requestBody := `{"type": 1}`
 		headers := getAuthHeaders(requestBody)
@@ -102,7 +97,6 @@ func TestVerify(t *testing.T) {
 		res := verify([]byte(body), headers, hex.EncodeToString(publicKey))
 		require.True(t, res)
 	})
-
 	t.Run("failure/modified message parts", func(t *testing.T) {
 		msg := []byte(timestamp + "baddata" + body)
 		signature := ed25519.Sign(privateKey, msg)
@@ -113,7 +107,6 @@ func TestVerify(t *testing.T) {
 		res := verify([]byte(body), headers, hex.EncodeToString(publicKey))
 		require.False(t, res)
 	})
-
 	t.Run("failure/blank signature timestamp", func(t *testing.T) {
 		msg := []byte(timestamp + body)
 		signature := ed25519.Sign(privateKey, msg)
@@ -124,7 +117,6 @@ func TestVerify(t *testing.T) {
 		res := verify([]byte(body), headers, hex.EncodeToString(publicKey))
 		require.False(t, res)
 	})
-
 	t.Run("failure/blank signature ed25519", func(t *testing.T) {
 		headers := http.Header{}
 		headers.Set("X-Signature-Timestamp", timestamp)
@@ -133,7 +125,6 @@ func TestVerify(t *testing.T) {
 		res := verify([]byte(body), headers, hex.EncodeToString(publicKey))
 		require.False(t, res)
 	})
-
 	t.Run("failure/non-hex public key", func(t *testing.T) {
 		msg := []byte(timestamp + body)
 		signature := ed25519.Sign(privateKey, msg)
@@ -144,7 +135,6 @@ func TestVerify(t *testing.T) {
 		res := verify([]byte(body), headers, hex.EncodeToString(publicKey)+"Z")
 		require.False(t, res)
 	})
-
 	t.Run("failure/non-hex signature", func(t *testing.T) {
 		msg := []byte(timestamp + body)
 		signature := ed25519.Sign(privateKey, msg)
@@ -155,7 +145,6 @@ func TestVerify(t *testing.T) {
 		res := verify([]byte(body), headers, hex.EncodeToString(publicKey))
 		require.False(t, res)
 	})
-
 	t.Run("failure/wrong length public key", func(t *testing.T) {
 		msg := []byte(timestamp + body)
 		signature := ed25519.Sign(privateKey, msg)
@@ -166,7 +155,6 @@ func TestVerify(t *testing.T) {
 		res := verify([]byte(body), headers, hex.EncodeToString(publicKey)+"1111")
 		require.False(t, res)
 	})
-
 	t.Run("failure/wrong length signature", func(t *testing.T) {
 		msg := []byte(timestamp + body)
 		signature := ed25519.Sign(privateKey, msg)

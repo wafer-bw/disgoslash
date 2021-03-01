@@ -11,6 +11,6 @@ type Credentials struct {
 type APIErrorResponse struct {
 	Message    string  `json:"message"`
 	Code       int     `json:"code"`
-	RetryAfter float32 `json:"retry_after"`
+	RetryAfter float64 `json:"retry_after"`
 	Global     bool    `json:"global"`
 }

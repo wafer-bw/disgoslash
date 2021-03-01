@@ -13,6 +13,7 @@ import (
 	"github.com/wafer-bw/disgoslash/errs"
 )
 
+const maxAttempts int = 3
 const baseURL string = "https://discord.com/api"
 const apiVersion string = "v8"
 
@@ -24,9 +25,10 @@ type client struct {
 
 // clientInterface methods
 type clientInterface interface {
-	ListApplicationCommands(guildID string) ([]*discord.ApplicationCommand, error)
-	CreateApplicationCommand(guildID string, command *discord.ApplicationCommand) error
-	DeleteApplicationCommand(guildID string, commandID string) error
+	list(guildID string) ([]*discord.ApplicationCommand, error)
+	create(guildID string, command *discord.ApplicationCommand) error
+	delete(guildID string, commandID string) error
+	request(method string, url string, body io.Reader) (int, []byte, error)
 }
 
 // NewClient creates a new `clientInterface` instance
@@ -41,8 +43,7 @@ func constructClient(creds *discord.Credentials, baseURL string, apiVersion stri
 	}
 }
 
-// ListApplicationCommands // todo
-func (client *client) ListApplicationCommands(guildID string) ([]*discord.ApplicationCommand, error) {
+func (client *client) list(guildID string) ([]*discord.ApplicationCommand, error) {
 	var url string
 	if guildID == "" {
 		url = fmt.Sprintf("%s/commands", client.apiURL)
@@ -52,8 +53,7 @@ func (client *client) ListApplicationCommands(guildID string) ([]*discord.Applic
 	return client.listApplicationCommands(url)
 }
 
-// CreateApplicationCommand // todo
-func (client *client) CreateApplicationCommand(guildID string, command *discord.ApplicationCommand) error {
+func (client *client) create(guildID string, command *discord.ApplicationCommand) error {
 	var url string
 	if guildID == "" {
 		url = fmt.Sprintf("%s/commands", client.apiURL)
@@ -63,8 +63,7 @@ func (client *client) CreateApplicationCommand(guildID string, command *discord.
 	return client.createApplicationCommand(url, command)
 }
 
-// DeleteApplicationCommand // todo
-func (client *client) DeleteApplicationCommand(guildID string, commandID string) error {
+func (client *client) delete(guildID string, commandID string) error {
 	var url string
 	if guildID == "" {
 		url = fmt.Sprintf("%s/commands/%s", client.apiURL, commandID)
@@ -114,7 +113,6 @@ func (client *client) deleteApplicationCommands(url string) error {
 
 func (client *client) request(method string, url string, body io.Reader) (int, []byte, error) {
 	attempts := 0
-	maxAttempts := 3
 
 	for attempts < maxAttempts {
 		attempts++
@@ -181,5 +179,5 @@ func determineRetry(statusCode int, data []byte) (time.Duration, error) {
 	if err := unmarshal(data, responseErr); err != nil {
 		return 0, err
 	}
-	return time.Duration(responseErr.RetryAfter) * time.Second, nil
+	return time.Duration((responseErr.RetryAfter*1000)+100) * time.Millisecond, nil
 }
