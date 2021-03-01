@@ -12,7 +12,7 @@ import (
 	"github.com/wafer-bw/disgoslash/errs"
 )
 
-// Handler implements a `Handler` interface's properties
+// Handler is used to handle Discord slash command interaction requests.
 type Handler struct {
 	SlashCommandMap SlashCommandMap
 	Creds           *discord.Credentials
@@ -22,7 +22,9 @@ var pongResponse = &discord.InteractionResponse{
 	Type: discord.InteractionResponseTypePong,
 }
 
-// Handle handles incoming HTTP requests
+// Handle incoming interaction requests from Discord guilds
+// executing the SlashCommand's Action and returning the
+// interaction response.
 func (handler *Handler) Handle(w http.ResponseWriter, r *http.Request) {
 	interactionRequest, err := handler.resolve(r)
 	if err != nil {
@@ -74,7 +76,7 @@ func (handler *Handler) execute(interaction *discord.InteractionRequest) (*disco
 	if !ok {
 		return nil, errs.ErrNotImplemented
 	}
-	return slashCommand.Action(interaction)
+	return slashCommand.Action(interaction), nil
 }
 
 func (handler *Handler) respond(w http.ResponseWriter, body []byte, err error) {

@@ -7,9 +7,6 @@ import (
 	discord "github.com/wafer-bw/disgoslash/discord"
 )
 
-// A Handler requires your Discord credentials and a map of slash commands
-// created by disgoslash.NewSlashCommandMap() which accepts  slash commands
-// created by disgoslash.NewSlashCommand().
 func ExampleHandler_Handle() {
 	creds := &discord.Credentials{
 		PublicKey: "YOUR_DISCORD_APPLICATION_PUBLIC_KEY",
@@ -18,9 +15,8 @@ func ExampleHandler_Handle() {
 	}
 
 	handler := &disgoslash.Handler{
-		SlashCommandMap: disgoslash.SlashCommandMap{}, // Replace this with your slash command map
+		SlashCommandMap: disgoslash.SlashCommandMap{},
 		Creds:           creds,
 	}
-
 	http.HandleFunc("/", handler.Handle)
 }

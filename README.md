@@ -1,5 +1,5 @@
 # disgoslash
-A Golang serverless Discord slash command helper library written for Vercel Serverless Functions
+A Golang serverless Discord slash command application library
 
 ![tests](https://github.com/wafer-bw/disgoslash/workflows/tests/badge.svg)
 ![lint](https://github.com/wafer-bw/disgoslash/workflows/lint/badge.svg)
@@ -16,10 +16,9 @@ go get github.com/wafer-bw/disgoslash
 
 ### Prerequisites
 * [Golang](https://golang.org/dl/)
-* [Vercel](https://vercel.com/)
-* [Discord Server](https://discord.com/)
+* [Discord](https://discord.com/)
     * Server `Guild ID`
-* [Discord Application & Bot](https://discord.com/developers/applications)
+* [Discord Application w/ Bot](https://discord.com/developers/applications)
     * Application `Public Key`
     * Application `Client ID`
     * Bot `Token`
@@ -33,20 +32,13 @@ go get github.com/wafer-bw/disgoslash
     * todo pass
     * stable version release
 * `client`
-    * consider making private otherwise
-        * exported comments
-        * examples
-    * cleanup struct usage
+    * verify retry logic works
     * add tests for retry/rate-limit handling code
     * add tests for uncovered code
     * EditGlobalApplicationCommand
     * EditGuildApplicationCommand
-* `handler`
-    * exported comments
-    * examples
 * `syncer`
-    * exported comments
-    * examples
+    * attempt to validate commands with some regex
 * `models`
     * finish Guild Model
 * import/export

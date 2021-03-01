@@ -11,12 +11,13 @@ type SlashCommand struct {
 	// The work to do when a slash command is invoked by a user
 	Action Action
 
-	// The name of the slash command which the user will invoke
-	// Ex: "/slashcommandname"
+	// 1-32 character name matching ^[\w-]{1,32}$
+	// Ex: "/tableflip"
 	Name string
 
 	// The IDs of the guilds (servers) the application command
-	// should be registered to
+	// should be registered to. To register the command globally
+	// include a blank string ("").
 	GuildIDs []string
 
 	// The application command object schema which will be
@@ -30,27 +31,19 @@ type SlashCommand struct {
 //
 // This is where you put the work to be done when
 // a user invokes the slash command.
-type Action func(request *discord.InteractionRequest) (*discord.InteractionResponse, error)
+//
+// An action function does not include an error
+// in its response signature because errors should
+// be handled gracefully and a message informing the
+// user that something went wrong should be included
+// in the interaction response.
+type Action func(request *discord.InteractionRequest) *discord.InteractionResponse
 
 // SlashCommandMap using each slash command's
-// application command lowercase name as a key
+// application command name as a key
 type SlashCommandMap map[string]SlashCommand
 
-// NewSlashCommand creates a new SlashCommand which must
-// be added to a SlashCommandMap via NewSlashCommandMap()
-// to be used by the Syncer and/or Handler.
-//
-// In order for an application command to be registered
-// to a guild (server), the bot will need to be granted
-// the "appliations.commands" scope for that server.
-//
-// A global command will be registered to all servers
-// the bot has been granted access to.
-//
-// The guild (server) IDs list indicates which guilds to
-// register the application command to.
-//
-// https://discord.com/developers/docs/interactions/slash-commands#authorizing-your-application
+// NewSlashCommand creates a new SlashCommand
 func NewSlashCommand(appCommand *discord.ApplicationCommand, action Action, global bool, guildIDs []string) SlashCommand {
 	if guildIDs == nil {
 		guildIDs = []string{}
@@ -66,15 +59,7 @@ func NewSlashCommand(appCommand *discord.ApplicationCommand, action Action, glob
 	}
 }
 
-// NewSlashCommandMap creates a SlashCommandMap to be passed
-// to either...
-//
-// A Syncer to register your application commands.
-//
-// A Handler which receives interaction
-// requests coming from your Discord server(s) when a
-// user invokes a slash command and executes the slash command's
-// Action function.
+// NewSlashCommandMap creates a new SlashCommandMap
 func NewSlashCommandMap(slashCommands ...SlashCommand) SlashCommandMap {
 	scm := SlashCommandMap{}
 	scm.add(slashCommands...)

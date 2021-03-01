@@ -77,16 +77,16 @@ const (
 type ApplicationCommand struct {
 	ID            string                      `json:"id"`
 	ApplicationID string                      `json:"application_id"`
-	Name          string                      `json:"name"`
-	Description   string                      `json:"description"`
-	Options       []*ApplicationCommandOption `json:"options"`
+	Name          string                      `json:"name"`        // 1-32 character name matching ^[\w-]{1,32}$
+	Description   string                      `json:"description"` // 1-100 character description
+	Options       []*ApplicationCommandOption `json:"options"`     // the parameters for the command
 }
 
 // ApplicationCommandOption - The parameters for the command
 type ApplicationCommandOption struct {
 	Type        ApplicationCommandOptionType      `json:"type"`
-	Name        string                            `json:"name"`
-	Description string                            `json:"description"`
+	Name        string                            `json:"name"`        // 1-32 character name matching ^[\w-]{1,32}$
+	Description string                            `json:"description"` // 1-100 character description
 	Required    bool                              `json:"required"`
 	Choices     []*ApplicationCommandOptionChoice `json:"choices"`
 	Options     []*ApplicationCommandOption       `json:"options"`

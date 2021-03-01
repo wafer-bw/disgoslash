@@ -6,12 +6,12 @@ import (
 	"github.com/wafer-bw/disgoslash/discord"
 )
 
-// Syncer is used to automatically update your Discord application's slash commands
+// Syncer is used to automatically update slash commands on Discord guilds (servers).
 type Syncer struct {
 	Creds           *discord.Credentials
 	SlashCommandMap SlashCommandMap
 	GuildIDs        []string
-	client          ClientInterface
+	client          clientInterface
 }
 
 type unregisterTarget struct {
@@ -22,12 +22,17 @@ type unregisterTarget struct {
 
 // Sync your Discord application's slash commands...
 //
-// registers new slash commands
-// unregisters old slash commands
-// reregisters existing slash commands
+// Registers new commands, unregisters old commands, and reregisters existing commands.
+//
+// In order for a command to be registered
+// to a guild (server), the bot will need to be granted
+// the "appliations.commands" scope for that server.
+//
+// A global command will be registered to all servers
+// the bot has been granted access to.
 func (syncer *Syncer) Sync() []error {
 	if syncer.client == nil {
-		syncer.client = NewClient(syncer.Creds)
+		syncer.client = newClient(syncer.Creds)
 	}
 	allErrs := []error{}
 	unregisterTargets, errs := syncer.getCommandsToUnregister()

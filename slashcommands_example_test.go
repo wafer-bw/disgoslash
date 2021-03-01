@@ -9,14 +9,14 @@ var slashCommand disgoslash.SlashCommand
 var anotherSlashCommand disgoslash.SlashCommand
 var slashCommandMap disgoslash.SlashCommandMap
 
-func action(request *discord.InteractionRequest) (*discord.InteractionResponse, error) {
+func action(request *discord.InteractionRequest) *discord.InteractionResponse {
 	username := request.Data.Options[0].Value
 	return &discord.InteractionResponse{
 		Type: discord.InteractionResponseTypeChannelMessageWithSource,
 		Data: &discord.InteractionApplicationCommandCallbackData{
 			Content: "Hello " + username + "!",
 		},
-	}, nil
+	}
 }
 
 func ExampleNewSlashCommand() {

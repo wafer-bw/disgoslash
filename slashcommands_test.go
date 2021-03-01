@@ -41,8 +41,8 @@ func TestNewSlashCommandMap(t *testing.T) {
 		Type: discord.InteractionResponseTypeChannelMessageWithSource,
 		Data: &discord.InteractionApplicationCommandCallbackData{Content: "Hello World!"},
 	}
-	do := func(request *discord.InteractionRequest) (*discord.InteractionResponse, error) {
-		return response, nil
+	do := func(request *discord.InteractionRequest) *discord.InteractionResponse {
+		return response
 	}
 	slashCommandMap := NewSlashCommandMap(
 		NewSlashCommand(command, do, true, []string{"11111"}),

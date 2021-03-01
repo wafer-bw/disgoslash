@@ -5,10 +5,6 @@ import (
 	discord "github.com/wafer-bw/disgoslash/discord"
 )
 
-// A Syncer requires your Discord credentials, a map of slash commands
-// created by disgoslash.NewSlashCommandMap() which accepts  slash commands
-// created by disgoslash.NewSlashCommand(), and the guild (server) IDs that
-// you have commands registered with already.
 func ExampleSyncer_Sync() {
 	guildIDs := []string{"YOUR_GUILD_(SERVER)_ID", "ANOTHER_GUILD_ID"}
 	creds := &discord.Credentials{
@@ -18,10 +14,9 @@ func ExampleSyncer_Sync() {
 	}
 
 	syncer := &disgoslash.Syncer{
-		SlashCommandMap: disgoslash.SlashCommandMap{}, // Replace this with your slash command map,
+		SlashCommandMap: disgoslash.NewSlashCommandMap(disgoslash.SlashCommand{}),
 		GuildIDs:        guildIDs,
 		Creds:           creds,
 	}
-
 	syncer.Sync()
 }

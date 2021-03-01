@@ -22,8 +22,8 @@ var response = &discord.InteractionResponse{
 	Type: discord.InteractionResponseTypeChannelMessageWithSource,
 	Data: &discord.InteractionApplicationCommandCallbackData{Content: "Hello World!"},
 }
-var do = func(request *discord.InteractionRequest) (*discord.InteractionResponse, error) {
-	return response, nil
+var do = func(request *discord.InteractionRequest) *discord.InteractionResponse {
+	return response
 }
 var handler = &Handler{
 	Creds:           &discord.Credentials{PublicKey: hex.EncodeToString(publicKey)},
