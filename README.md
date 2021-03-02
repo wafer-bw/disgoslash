@@ -1,5 +1,5 @@
 # disgoslash
-A Golang serverless Discord slash command application library
+A Golang serverless Discord slash command application package
 
 ![tests](https://github.com/wafer-bw/disgoslash/workflows/tests/badge.svg)
 ![lint](https://github.com/wafer-bw/disgoslash/workflows/lint/badge.svg)
@@ -22,28 +22,6 @@ go get github.com/wafer-bw/disgoslash
     * Application `Public Key`
     * Application `Client ID`
     * Bot `Token`
-
-## TODOs
-* readme
-    * table of contents
-    * example project
-* package
-    * stable version release
-* `client`
-    * EditGlobalApplicationCommand
-    * EditGuildApplicationCommand
-* `syncer`
-    * attempt to validate commands with some regex
-* `models`
-    * finish Guild Model
-* import/export
-    * `exporter`
-        * export commands to json
-    * `cmd/disgoslash.go`
-        * list commands
-        * unregister commands
-        * register commands
-
 
 ## References
 * [discordgo](https://github.com/bwmarrin/discordgo) - ed25519 auth
