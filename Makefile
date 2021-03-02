@@ -3,7 +3,7 @@ get:
 .PHONY: get
 
 mocks:
-	mockery --name "ClientInterface" --structname "mockClientInterface" --filename "client_mock.go" --inpackage
+	mockery --name "clientInterface" --structname "mockClientInterface" --filename "client_mock.go" --inpackage
 .PHONY: mocks
 
 test:
@@ -31,7 +31,7 @@ tidy:
 .PHONY: tidy
 
 doc:
-	godoc -http=:6060
+	godoc -http=:6060 -play
 .PHONY: doc
 
 precommit:

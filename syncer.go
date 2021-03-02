@@ -6,12 +6,12 @@ import (
 	"github.com/wafer-bw/disgoslash/discord"
 )
 
-// Syncer is used to automatically update your Discord application's slash commands
+// Syncer is used to automatically update slash commands on Discord guilds (servers).
 type Syncer struct {
 	Creds           *discord.Credentials
 	SlashCommandMap SlashCommandMap
 	GuildIDs        []string
-	client          ClientInterface
+	client          clientInterface
 }
 
 type unregisterTarget struct {
@@ -22,12 +22,17 @@ type unregisterTarget struct {
 
 // Sync your Discord application's slash commands...
 //
-// registers new slash commands
-// unregisters old slash commands
-// reregisters existing slash commands
+// Registers new commands, unregisters old commands, and reregisters existing commands.
+//
+// In order for a command to be registered
+// to a guild (server), the bot will need to be granted
+// the "appliations.commands" scope for that server.
+//
+// A global command will be registered to all servers
+// the bot has been granted access to.
 func (syncer *Syncer) Sync() []error {
 	if syncer.client == nil {
-		syncer.client = NewClient(syncer.Creds)
+		syncer.client = newClient(syncer.Creds)
 	}
 	allErrs := []error{}
 	unregisterTargets, errs := syncer.getCommandsToUnregister()
@@ -46,7 +51,7 @@ func (syncer *Syncer) getCommandsToUnregister() ([]unregisterTarget, []error) {
 	unregisterTargets := []unregisterTarget{}
 	for _, guildID := range uniqueGuildIDs {
 		log.Printf("\t- Guild: %s\n", guildText(guildID))
-		commands, err := syncer.client.ListApplicationCommands(guildID)
+		commands, err := syncer.client.list(guildID)
 		if err != nil {
 			log.Printf("\t\t- ERROR: %s\n", err.Error())
 			errs = append(errs, err)
@@ -69,7 +74,7 @@ func (syncer *Syncer) unregisterCommands(unregisterTargets []unregisterTarget) [
 	log.Println("Unregistering outdated commands...")
 	for _, target := range unregisterTargets {
 		log.Printf("\t- Guild: %s, Command: %s\n", guildText(target.guildID), target.name)
-		err := syncer.client.DeleteApplicationCommand(target.guildID, target.commandID)
+		err := syncer.client.delete(target.guildID, target.commandID)
 		if err != nil {
 			log.Printf("\t\t- ERROR: %s\n", err.Error())
 			errs = append(errs, err)
@@ -86,7 +91,7 @@ func (syncer *Syncer) registerCommands(commandMap SlashCommandMap) []error {
 	for _, command := range commandMap {
 		for _, guildID := range command.GuildIDs {
 			log.Printf("\t- Guild: %s, Command: %s\n", guildText(guildID), command.Name)
-			err := syncer.client.CreateApplicationCommand(guildID, command.AppCommand)
+			err := syncer.client.create(guildID, command.ApplicationCommand)
 			if err != nil {
 				log.Printf("\t\t- ERROR: %s\n", err.Error())
 				errs = append(errs, err)

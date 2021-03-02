@@ -10,38 +10,40 @@ import (
 	"time"
 
 	discord "github.com/wafer-bw/disgoslash/discord"
+	"github.com/wafer-bw/disgoslash/errs"
 )
 
+const maxAttempts int = 3
 const baseURL string = "https://discord.com/api"
 const apiVersion string = "v8"
 
-// Client implements a `ClientInterface` interface's properties
-type Client struct {
+// client implements a `clientInterface` interface's properties
+type client struct {
 	apiURL    string
 	authToken string
 }
 
-// ClientInterface methods
-type ClientInterface interface {
-	ListApplicationCommands(guildID string) ([]*discord.ApplicationCommand, error)
-	CreateApplicationCommand(guildID string, command *discord.ApplicationCommand) error
-	DeleteApplicationCommand(guildID string, commandID string) error
+// clientInterface methods
+type clientInterface interface {
+	list(guildID string) ([]*discord.ApplicationCommand, error)
+	create(guildID string, command *discord.ApplicationCommand) error
+	delete(guildID string, commandID string) error
+	request(method string, url string, body io.Reader) (int, []byte, error)
 }
 
-// NewClient creates a new `ClientInterface` instance
-func NewClient(creds *discord.Credentials) ClientInterface {
+// NewClient creates a new `clientInterface` instance
+func newClient(creds *discord.Credentials) clientInterface {
 	return constructClient(creds, baseURL, apiVersion)
 }
 
-func constructClient(creds *discord.Credentials, baseURL string, apiVersion string) ClientInterface {
-	return &Client{
+func constructClient(creds *discord.Credentials, baseURL string, apiVersion string) clientInterface {
+	return &client{
 		apiURL:    fmt.Sprintf("%s/%s/applications/%s", baseURL, apiVersion, creds.ClientID),
 		authToken: fmt.Sprintf("Bot %s", creds.Token),
 	}
 }
 
-// ListApplicationCommands // todo
-func (client *Client) ListApplicationCommands(guildID string) ([]*discord.ApplicationCommand, error) {
+func (client *client) list(guildID string) ([]*discord.ApplicationCommand, error) {
 	var url string
 	if guildID == "" {
 		url = fmt.Sprintf("%s/commands", client.apiURL)
@@ -51,8 +53,7 @@ func (client *Client) ListApplicationCommands(guildID string) ([]*discord.Applic
 	return client.listApplicationCommands(url)
 }
 
-// CreateApplicationCommand // todo
-func (client *Client) CreateApplicationCommand(guildID string, command *discord.ApplicationCommand) error {
+func (client *client) create(guildID string, command *discord.ApplicationCommand) error {
 	var url string
 	if guildID == "" {
 		url = fmt.Sprintf("%s/commands", client.apiURL)
@@ -62,8 +63,7 @@ func (client *Client) CreateApplicationCommand(guildID string, command *discord.
 	return client.createApplicationCommand(url, command)
 }
 
-// DeleteApplicationCommand // todo
-func (client *Client) DeleteApplicationCommand(guildID string, commandID string) error {
+func (client *client) delete(guildID string, commandID string) error {
 	var url string
 	if guildID == "" {
 		url = fmt.Sprintf("%s/commands/%s", client.apiURL, commandID)
@@ -73,7 +73,7 @@ func (client *Client) DeleteApplicationCommand(guildID string, commandID string)
 	return client.deleteApplicationCommands(url)
 }
 
-func (client *Client) listApplicationCommands(url string) ([]*discord.ApplicationCommand, error) {
+func (client *client) listApplicationCommands(url string) ([]*discord.ApplicationCommand, error) {
 	status, data, err := client.request(http.MethodGet, url, nil)
 	if err != nil {
 		return nil, err
@@ -87,7 +87,7 @@ func (client *Client) listApplicationCommands(url string) ([]*discord.Applicatio
 	return *commands, nil
 }
 
-func (client *Client) createApplicationCommand(url string, command *discord.ApplicationCommand) error {
+func (client *client) createApplicationCommand(url string, command *discord.ApplicationCommand) error {
 	body, err := marshal(command)
 	if err != nil {
 		return err
@@ -95,14 +95,14 @@ func (client *Client) createApplicationCommand(url string, command *discord.Appl
 	if status, data, err := client.request(http.MethodPost, url, body); err != nil {
 		return err
 	} else if status == http.StatusOK {
-		return ErrAlreadyExists
+		return errs.ErrAlreadyExists
 	} else if status != http.StatusCreated {
 		return fmt.Errorf("%d - %s", status, string(data))
 	}
 	return nil
 }
 
-func (client *Client) deleteApplicationCommands(url string) error {
+func (client *client) deleteApplicationCommands(url string) error {
 	if status, data, err := client.request(http.MethodDelete, url, nil); err != nil {
 		return err
 	} else if status != http.StatusNoContent {
@@ -111,9 +111,8 @@ func (client *Client) deleteApplicationCommands(url string) error {
 	return nil
 }
 
-func (client *Client) request(method string, url string, body io.Reader) (int, []byte, error) {
+func (client *client) request(method string, url string, body io.Reader) (int, []byte, error) {
 	attempts := 0
-	maxAttempts := 3
 
 	for attempts < maxAttempts {
 		attempts++
@@ -134,9 +133,9 @@ func (client *Client) request(method string, url string, body io.Reader) (int, [
 
 		switch response.StatusCode {
 		case http.StatusForbidden:
-			return 0, nil, ErrForbidden
+			return 0, nil, errs.ErrForbidden
 		case http.StatusUnauthorized:
-			return 0, nil, ErrUnauthorized
+			return 0, nil, errs.ErrUnauthorized
 		}
 
 		data, err := ioutil.ReadAll(response.Body)
@@ -154,7 +153,7 @@ func (client *Client) request(method string, url string, body io.Reader) (int, [
 		}
 		time.Sleep(waitTime)
 	}
-	return 0, nil, ErrMaxRetries
+	return 0, nil, errs.ErrMaxRetries
 }
 
 func unmarshal(body []byte, v interface{}) error {
@@ -180,5 +179,5 @@ func determineRetry(statusCode int, data []byte) (time.Duration, error) {
 	if err := unmarshal(data, responseErr); err != nil {
 		return 0, err
 	}
-	return time.Duration(responseErr.RetryAfter) * time.Second, nil
+	return time.Duration((responseErr.RetryAfter*1000)+100) * time.Millisecond, nil
 }
