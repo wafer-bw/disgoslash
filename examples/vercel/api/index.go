@@ -23,16 +23,13 @@ var Global = true
 
 // Credentials holds your Discord Application's secret credentials.
 //
-// WARNING - Do not track these secrets in version control
+// WARNING - Do not track these secrets in version control.
 //
 // https://discord.com/developers/applications
 var Credentials = &discord.Credentials{
-	// Your Discord Application's Public Key
-	PublicKey: "PUBLIC_KEY",
-	// Your Discord Application's Client ID
-	ClientID: "CLIENT_ID",
-	// Your Discord Application's Bot's Token
-	Token: "TOKEN",
+	PublicKey: "PUBLIC_KEY", // Your Discord Application's Public Key
+	ClientID:  "CLIENT_ID",  // Your Discord Application's Client ID
+	Token:     "TOKEN",      // Your Discord Application's Bot's Token
 }
 
 var command = &discord.ApplicationCommand{
