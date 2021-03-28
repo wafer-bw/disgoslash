@@ -1,12 +1,14 @@
 package disgoslash
 
 import (
+	"context"
 	"crypto/ed25519"
 	"encoding/hex"
 	"encoding/json"
 	"io/ioutil"
 	"log"
 	"net/http"
+	"time"
 
 	"github.com/wafer-bw/disgoslash/discord"
 	"github.com/wafer-bw/disgoslash/errs"
@@ -18,33 +20,64 @@ type Handler struct {
 	Creds           *discord.Credentials
 }
 
+type response struct {
+	w    http.ResponseWriter
+	body []byte
+	err  error
+}
+
 var pongResponse = &discord.InteractionResponse{
 	Type: discord.InteractionResponseTypePong,
 }
 
-// Handle incoming interaction requests from Discord guilds
-// executing the SlashCommand's Action and returning the
-// interaction response.
+// Handle incoming interaction requests from Discord guilds,
+// executing the SlashCommand's Action and responding with
+// its InteractionResponse.
+//
+// 400 - An invalid Discord Interaction Type was passed in the request.
+//
+// 401 - Authorization failed.
+//
+// 500 - Something unexpected went wrong OR the Action did not respond
+// within discord's maximum response time of 3 seconds.
+//
+// 501 - A SlashCommand that does not exist in the SlashCommandMap was
+// requested.
 func (handler *Handler) Handle(w http.ResponseWriter, r *http.Request) {
+	deadline := time.Now().Add(discord.MaxResponseTime)
+	ctx, cancel := context.WithDeadline(r.Context(), deadline)
+	defer cancel()
+
+	responseChannel := make(chan response, 1)
+	go handler.handle(responseChannel, w, r)
+	select {
+	case response := <-responseChannel:
+		handler.respond(response)
+	case <-ctx.Done():
+		handler.respond(response{w: w, body: nil, err: ctx.Err()})
+	}
+}
+
+func (handler *Handler) handle(ch chan response, w http.ResponseWriter, r *http.Request) {
 	interactionRequest, err := handler.resolve(r)
 	if err != nil {
-		handler.respond(w, nil, err)
+		ch <- response{w: w, body: nil, err: err}
 		return
 	}
 
-	interactionResponse, err := handler.triage(interactionRequest)
+	interactionResponse, err := handler.execute(interactionRequest)
 	if err != nil {
-		handler.respond(w, nil, err)
+		ch <- response{w: w, body: nil, err: err}
 		return
 	}
 
 	body, err := handler.marshal(interactionResponse)
 	if err != nil {
-		handler.respond(w, nil, err)
+		ch <- response{w: w, body: nil, err: err}
 		return
 	}
 
-	handler.respond(w, body, nil)
+	ch <- response{w: w, body: body, err: nil}
 }
 
 func (handler *Handler) resolve(r *http.Request) (*discord.InteractionRequest, error) {
@@ -60,40 +93,47 @@ func (handler *Handler) resolve(r *http.Request) (*discord.InteractionRequest, e
 	return handler.unmarshal(body)
 }
 
-func (handler *Handler) triage(interaction *discord.InteractionRequest) (*discord.InteractionResponse, error) {
+func (handler *Handler) execute(interaction *discord.InteractionRequest) (*discord.InteractionResponse, error) {
 	switch interaction.Type {
 	case discord.InteractionTypePing:
 		return pongResponse, nil
 	case discord.InteractionTypeApplicationCommand:
-		return handler.execute(interaction)
+		return handler.doAction(interaction)
 	default:
 		return nil, errs.ErrInvalidInteractionType
 	}
 }
 
-func (handler *Handler) execute(interaction *discord.InteractionRequest) (*discord.InteractionResponse, error) {
+func (handler *Handler) doAction(interaction *discord.InteractionRequest) (*discord.InteractionResponse, error) {
 	slashCommand, ok := handler.SlashCommandMap[interaction.Data.Name]
 	if !ok {
 		return nil, errs.ErrNotImplemented
 	}
-	return slashCommand.Action(interaction), nil
+	response := slashCommand.Action(interaction)
+	if response == nil {
+		return nil, errs.ErrNilInteractionResponse
+	}
+	return response, nil
 }
 
-func (handler *Handler) respond(w http.ResponseWriter, body []byte, err error) {
-	switch err {
+func (handler *Handler) respond(resp response) {
+	if resp.err != nil {
+		log.Println(resp.err)
+	}
+
+	switch resp.err {
 	case nil:
-		if _, err = w.Write(body); err != nil {
-			handler.respond(w, nil, err)
+		if _, err := resp.w.Write(resp.body); resp.err != nil {
+			handler.respond(response{w: resp.w, body: nil, err: err})
 		}
-	case errs.ErrUnauthorized:
-		http.Error(w, err.Error(), http.StatusUnauthorized)
 	case errs.ErrInvalidInteractionType:
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		http.Error(resp.w, resp.err.Error(), http.StatusBadRequest)
+	case errs.ErrUnauthorized:
+		http.Error(resp.w, resp.err.Error(), http.StatusUnauthorized)
 	case errs.ErrNotImplemented:
-		http.Error(w, err.Error(), http.StatusNotImplemented)
+		http.Error(resp.w, resp.err.Error(), http.StatusNotImplemented)
 	default:
-		log.Printf("ERROR: %s\n", err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		http.Error(resp.w, resp.err.Error(), http.StatusInternalServerError)
 	}
 }
 

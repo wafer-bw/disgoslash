@@ -50,13 +50,13 @@ func (syncer *Syncer) getCommandsToUnregister() ([]unregisterTarget, []error) {
 	uniqueGuildIDs := syncer.getUniqueGuildIDs(syncer.GuildIDs, syncer.SlashCommandMap)
 	unregisterTargets := []unregisterTarget{}
 	for _, guildID := range uniqueGuildIDs {
-		log.Printf("\t- Guild: %s\n", guildText(guildID))
+		log.Printf("\tGuild: %s\n", guildText(guildID))
 		commands, err := syncer.client.list(guildID)
 		if err != nil {
-			log.Printf("\t\t- ERROR: %s\n", err.Error())
+			log.Printf("\t\terror: %s\n", err.Error())
 			errs = append(errs, err)
 		} else {
-			log.Printf("\t\t- SUCCESS")
+			log.Printf("\t\tsuccess")
 		}
 		for _, command := range commands {
 			unregisterTargets = append(unregisterTargets, unregisterTarget{
@@ -73,13 +73,13 @@ func (syncer *Syncer) unregisterCommands(unregisterTargets []unregisterTarget) [
 	errs := []error{}
 	log.Println("Unregistering outdated commands...")
 	for _, target := range unregisterTargets {
-		log.Printf("\t- Guild: %s, Command: %s\n", guildText(target.guildID), target.name)
+		log.Printf("\tGuild: %s, Command: %s\n", guildText(target.guildID), target.name)
 		err := syncer.client.delete(target.guildID, target.commandID)
 		if err != nil {
-			log.Printf("\t\t- ERROR: %s\n", err.Error())
+			log.Printf("\t\terror: %s\n", err.Error())
 			errs = append(errs, err)
 		} else {
-			log.Printf("\t\t- SUCCESS")
+			log.Printf("\t\tsuccess")
 		}
 	}
 	return errs
@@ -90,13 +90,13 @@ func (syncer *Syncer) registerCommands(commandMap SlashCommandMap) []error {
 	log.Println("Registering new commands...")
 	for _, command := range commandMap {
 		for _, guildID := range command.GuildIDs {
-			log.Printf("\t- Guild: %s, Command: %s\n", guildText(guildID), command.Name)
+			log.Printf("\tGuild: %s, Command: %s\n", guildText(guildID), command.Name)
 			err := syncer.client.create(guildID, command.ApplicationCommand)
 			if err != nil {
-				log.Printf("\t\t- ERROR: %s\n", err.Error())
+				log.Printf("\t\terror: %s\n", err.Error())
 				errs = append(errs, err)
 			} else {
-				log.Printf("\t\t- SUCCESS")
+				log.Printf("\t\tsuccess")
 			}
 		}
 	}

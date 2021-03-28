@@ -6,7 +6,9 @@ import (
 	"github.com/wafer-bw/disgoslash/discord"
 )
 
-// SlashCommand object properties
+// SlashCommand holds the required information for disgoslash
+// to execute a slash command Action and register the slash commands
+// with Discord.
 type SlashCommand struct {
 	// The work to do when a slash command is invoked by a user
 	Action Action
@@ -39,8 +41,10 @@ type SlashCommand struct {
 // in the interaction response.
 type Action func(request *discord.InteractionRequest) *discord.InteractionResponse
 
-// SlashCommandMap using each slash command's
-// application command name as a key
+// SlashCommandMap using each slash command's application
+// command name as a key. Used by disgoslash Handler to serve
+// interaction requests or by disgoslash Syncer to register
+// slash commands with discord.
 type SlashCommandMap map[string]SlashCommand
 
 // NewSlashCommand creates a new SlashCommand
