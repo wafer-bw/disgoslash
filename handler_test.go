@@ -9,21 +9,23 @@ import (
 	"net/http/httptest"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/require"
 	"github.com/wafer-bw/disgoslash/discord"
+	"github.com/wafer-bw/disgoslash/errs"
 )
 
 //nolint
 var publicKey, privateKey, _ = ed25519.GenerateKey(nil)
 var url = "http://localhost/api"
 var interactionName = "interaction"
-var response = &discord.InteractionResponse{
+var testResponse = &discord.InteractionResponse{
 	Type: discord.InteractionResponseTypeChannelMessageWithSource,
 	Data: &discord.InteractionApplicationCommandCallbackData{Content: "Hello World!"},
 }
 var do = func(request *discord.InteractionRequest) *discord.InteractionResponse {
-	return response
+	return testResponse
 }
 var handler = &Handler{
 	Creds:           &discord.Credentials{PublicKey: hex.EncodeToString(publicKey)},
@@ -34,7 +36,7 @@ var handlerFunc = http.HandlerFunc(handler.Handle)
 func TestHandle(t *testing.T) {
 	t.Run("success/respond to ping", func(t *testing.T) {
 		requestBody := `{"type":1}`
-		body, resp, err := httpTestRequest(http.MethodGet, url, getAuthHeaders(requestBody), requestBody)
+		body, resp, err := httpTestRequest(handlerFunc, http.MethodGet, url, getAuthHeaders(requestBody), requestBody)
 		require.NoError(t, err)
 		require.Equal(t, http.StatusOK, resp.StatusCode, string(body))
 	})
@@ -47,9 +49,32 @@ func TestHandle(t *testing.T) {
 		require.NoError(t, err)
 		requestBody := string(data)
 
-		body, resp, err := httpTestRequest(http.MethodGet, url, getAuthHeaders(requestBody), requestBody)
+		body, resp, err := httpTestRequest(handlerFunc, http.MethodGet, url, getAuthHeaders(requestBody), requestBody)
 		require.NoError(t, err)
 		require.Equal(t, http.StatusOK, resp.StatusCode, string(body))
+	})
+	t.Run("failure/interaction took too long", func(t *testing.T) {
+		longDo := func(_ *discord.InteractionRequest) *discord.InteractionResponse {
+			time.Sleep(discord.MaxResponseTime + 500*time.Millisecond)
+			return testResponse
+		}
+		longHandler := &Handler{
+			Creds:           &discord.Credentials{PublicKey: hex.EncodeToString(publicKey)},
+			SlashCommandMap: NewSlashCommandMap(NewSlashCommand(&discord.ApplicationCommand{Name: interactionName, Description: "desc"}, longDo, true, []string{"11111"})),
+		}
+
+		interaction := &discord.InteractionRequest{
+			Type: discord.InteractionTypeApplicationCommand,
+			Data: &discord.ApplicationCommandInteractionData{Name: interactionName},
+		}
+		data, err := json.Marshal(interaction)
+		require.NoError(t, err)
+		requestBody := string(data)
+
+		body, resp, err := httpTestRequest(http.HandlerFunc(longHandler.Handle), http.MethodGet, url, getAuthHeaders(requestBody), requestBody)
+		require.NoError(t, err)
+		require.Equal(t, http.StatusInternalServerError, resp.StatusCode, string(body))
+		require.Equal(t, errs.ErrTookTooLong, strings.TrimSuffix(string(body), "\n"))
 	})
 	t.Run("failure/unimplemented interaction", func(t *testing.T) {
 		data, err := json.Marshal(&discord.InteractionRequest{
@@ -59,14 +84,14 @@ func TestHandle(t *testing.T) {
 		require.NoError(t, err)
 		requestBody := string(data)
 
-		body, resp, err := httpTestRequest(http.MethodGet, url, getAuthHeaders(requestBody), requestBody)
+		body, resp, err := httpTestRequest(handlerFunc, http.MethodGet, url, getAuthHeaders(requestBody), requestBody)
 		require.NoError(t, err)
 		require.Equal(t, http.StatusNotImplemented, resp.StatusCode, string(body))
 	})
 	t.Run("failure/invalid interaction type", func(t *testing.T) {
 		requestBody := `{"type": 3}`
 
-		body, resp, err := httpTestRequest(http.MethodGet, url, getAuthHeaders(requestBody), requestBody)
+		body, resp, err := httpTestRequest(handlerFunc, http.MethodGet, url, getAuthHeaders(requestBody), requestBody)
 		require.NoError(t, err)
 		require.Equal(t, http.StatusBadRequest, resp.StatusCode, string(body))
 	})
@@ -75,7 +100,7 @@ func TestHandle(t *testing.T) {
 		headers := getAuthHeaders(requestBody)
 		headers["X-Signature-Ed25519"] = "X"
 
-		body, resp, err := httpTestRequest(http.MethodGet, url, headers, requestBody)
+		body, resp, err := httpTestRequest(handlerFunc, http.MethodGet, url, headers, requestBody)
 		require.NoError(t, err)
 		require.Equal(t, http.StatusUnauthorized, resp.StatusCode, string(body))
 	})
@@ -178,15 +203,15 @@ func getAuthHeaders(body string) map[string]string {
 	return headers
 }
 
-func httpTestRequest(method string, url string, headers map[string]string, body string) ([]byte, *http.Response, error) {
+func httpTestRequest(handler http.HandlerFunc, method string, url string, headers map[string]string, body string) ([]byte, *http.Response, error) {
 	request := httptest.NewRequest(method, url, strings.NewReader(body))
 	request.Header.Set("accept", "application/json")
 	for key, val := range headers {
 		request.Header.Set(key, val)
 	}
 	recorder := httptest.NewRecorder()
-	handlerFunc.ServeHTTP(recorder, request)
-	response := recorder.Result()
+	handler.ServeHTTP(recorder, request)
+	testResponse := recorder.Result()
 	responseBody, err := ioutil.ReadAll(recorder.Body)
-	return responseBody, response, err
+	return responseBody, testResponse, err
 }

@@ -1,6 +1,9 @@
 package errs
 
-import "errors"
+import (
+	"context"
+	"errors"
+)
 
 // ErrUnauthorized is returned when the request signature is invalid or Discord API responded with 401
 var ErrUnauthorized = errors.New("unauthorized")
@@ -22,3 +25,9 @@ var ErrForbidden = errors.New("forbidden - missing access")
 
 // ErrMaxRetries is returned when the maximum number of retries is reached in a retry loop
 var ErrMaxRetries = errors.New("max retries reached")
+
+// ErrNilInteractionResponse is returned when a slash command action returns a nil interaction response
+var ErrNilInteractionResponse = errors.New("interaction response was nil")
+
+//ErrTookTooLong is returned when the slash command action took longer than Discord's maximum allowed time
+var ErrTookTooLong = context.DeadlineExceeded.Error()
