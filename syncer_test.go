@@ -9,6 +9,14 @@ import (
 )
 
 func TestSync(t *testing.T) {
+	testResponse := &discord.InteractionResponse{
+		Type: discord.InteractionResponseTypeChannelMessageWithSource,
+		Data: &discord.InteractionApplicationCommandCallbackData{Content: "Hello World!"},
+	}
+	do := func(request *discord.InteractionRequest) *discord.InteractionResponse {
+		return testResponse
+	}
+
 	applicationCommands := []*discord.ApplicationCommand{
 		{ID: "A", Name: "testCommandA", Description: "desc"},
 		{ID: "B", Name: "testCommandB", Description: "desc"},

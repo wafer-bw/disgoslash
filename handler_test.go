@@ -4,6 +4,7 @@ import (
 	"crypto/ed25519"
 	"encoding/hex"
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
@@ -19,21 +20,21 @@ import (
 //nolint
 var publicKey, privateKey, _ = ed25519.GenerateKey(nil)
 var url = "http://localhost/api"
-var interactionName = "interaction"
-var testResponse = &discord.InteractionResponse{
-	Type: discord.InteractionResponseTypeChannelMessageWithSource,
-	Data: &discord.InteractionApplicationCommandCallbackData{Content: "Hello World!"},
-}
-var do = func(request *discord.InteractionRequest) *discord.InteractionResponse {
-	return testResponse
-}
-var handler = &Handler{
-	Creds:           &discord.Credentials{PublicKey: hex.EncodeToString(publicKey)},
-	SlashCommandMap: NewSlashCommandMap(NewSlashCommand(&discord.ApplicationCommand{Name: interactionName, Description: "desc"}, do, true, []string{"11111"})),
-}
-var handlerFunc = http.HandlerFunc(handler.Handle)
 
 func TestHandle(t *testing.T) {
+	interactionName := "interaction"
+	testResponse := &discord.InteractionResponse{
+		Type: discord.InteractionResponseTypeChannelMessageWithSource,
+		Data: &discord.InteractionApplicationCommandCallbackData{Content: "Hello World!"},
+	}
+	do := func(request *discord.InteractionRequest) *discord.InteractionResponse {
+		return testResponse
+	}
+	handler := &Handler{
+		Creds:           &discord.Credentials{PublicKey: hex.EncodeToString(publicKey)},
+		SlashCommandMap: NewSlashCommandMap(NewSlashCommand(&discord.ApplicationCommand{Name: interactionName, Description: "desc"}, do, true, []string{"11111"})),
+	}
+	handlerFunc := http.HandlerFunc(handler.Handle)
 	t.Run("success/respond to ping", func(t *testing.T) {
 		requestBody := `{"type":1}`
 		body, resp, err := httpTestRequest(handlerFunc, http.MethodGet, url, getAuthHeaders(requestBody), requestBody)
@@ -103,6 +104,154 @@ func TestHandle(t *testing.T) {
 		body, resp, err := httpTestRequest(handlerFunc, http.MethodGet, url, headers, requestBody)
 		require.NoError(t, err)
 		require.Equal(t, http.StatusUnauthorized, resp.StatusCode, string(body))
+	})
+}
+
+func TestUnmarshal(t *testing.T) {
+	commandName := "interaction"
+	do := func(request *discord.InteractionRequest) *discord.InteractionResponse {
+		return nil
+	}
+	t.Run("success/unmarshal string option", func(t *testing.T) {
+		optionName := "username"
+		optionVal := "wafer-bw"
+		applicationCommand := &discord.ApplicationCommand{
+			Name:        commandName,
+			Description: "desc",
+			Options: []*discord.ApplicationCommandOption{
+				{Name: optionName, Type: discord.ApplicationCommandOptionTypeString},
+			},
+		}
+		handler := &Handler{
+			Creds:           &discord.Credentials{PublicKey: hex.EncodeToString(publicKey)},
+			SlashCommandMap: NewSlashCommandMap(NewSlashCommand(applicationCommand, do, true, []string{"11111"})),
+		}
+		interaction := &discord.InteractionRequest{Data: &discord.ApplicationCommandInteractionData{
+			Name: commandName,
+			Options: []*discord.ApplicationCommandInteractionDataOption{
+				{Name: optionName, Value: json.RawMessage(fmt.Sprintf(`"%s"`, optionVal))},
+			},
+		}}
+		interactionBytes, err := json.Marshal(interaction)
+		require.NoError(t, err)
+
+		interactionRequest, err := handler.unmarshal(interactionBytes)
+		require.NoError(t, err)
+		require.Equal(t, optionVal, *interactionRequest.Data.Options[0].String)
+	})
+	t.Run("success/unmarshal integer option", func(t *testing.T) {
+		optionName := "count"
+		optionVal := 100
+		applicationCommand := &discord.ApplicationCommand{
+			Name:        commandName,
+			Description: "desc",
+			Options: []*discord.ApplicationCommandOption{
+				{Name: optionName, Type: discord.ApplicationCommandOptionTypeInteger},
+			},
+		}
+		handler := &Handler{
+			Creds:           &discord.Credentials{PublicKey: hex.EncodeToString(publicKey)},
+			SlashCommandMap: NewSlashCommandMap(NewSlashCommand(applicationCommand, do, true, []string{"11111"})),
+		}
+
+		interaction := &discord.InteractionRequest{Data: &discord.ApplicationCommandInteractionData{
+			Name: commandName,
+			Options: []*discord.ApplicationCommandInteractionDataOption{
+				{Name: optionName, Value: json.RawMessage(fmt.Sprintf(`%d`, optionVal))},
+			},
+		}}
+		interactionBytes, err := json.Marshal(interaction)
+		require.NoError(t, err)
+
+		interactionRequest, err := handler.unmarshal(interactionBytes)
+		require.NoError(t, err)
+		require.Equal(t, optionVal, *interactionRequest.Data.Options[0].Integer)
+	})
+	t.Run("success/unmarshal bool option", func(t *testing.T) {
+		optionName := "enabled"
+		optionVal := true
+		applicationCommand := &discord.ApplicationCommand{
+			Name:        commandName,
+			Description: "desc",
+			Options: []*discord.ApplicationCommandOption{
+				{Name: optionName, Type: discord.ApplicationCommandOptionTypeBoolean},
+			},
+		}
+		handler := &Handler{
+			Creds:           &discord.Credentials{PublicKey: hex.EncodeToString(publicKey)},
+			SlashCommandMap: NewSlashCommandMap(NewSlashCommand(applicationCommand, do, true, []string{"11111"})),
+		}
+
+		interaction := &discord.InteractionRequest{Data: &discord.ApplicationCommandInteractionData{
+			Name: commandName,
+			Options: []*discord.ApplicationCommandInteractionDataOption{
+				{Name: optionName, Value: json.RawMessage(fmt.Sprintf(`%t`, optionVal))},
+			},
+		}}
+		interactionBytes, err := json.Marshal(interaction)
+		require.NoError(t, err)
+
+		interactionRequest, err := handler.unmarshal(interactionBytes)
+		require.NoError(t, err)
+		require.Equal(t, optionVal, *interactionRequest.Data.Options[0].Boolean)
+	})
+	t.Run("success/unmarshal user option", func(t *testing.T) {
+		optionName := "enabled"
+		optionVal := &discord.User{ID: "0", Username: "wafer"}
+		applicationCommand := &discord.ApplicationCommand{
+			Name:        commandName,
+			Description: "desc",
+			Options: []*discord.ApplicationCommandOption{
+				{Name: optionName, Type: discord.ApplicationCommandOptionTypeUser},
+			},
+		}
+		handler := &Handler{
+			Creds:           &discord.Credentials{PublicKey: hex.EncodeToString(publicKey)},
+			SlashCommandMap: NewSlashCommandMap(NewSlashCommand(applicationCommand, do, true, []string{"11111"})),
+		}
+		rawJSON, err := json.Marshal(optionVal)
+		require.NoError(t, err)
+		interaction := &discord.InteractionRequest{Data: &discord.ApplicationCommandInteractionData{
+			Name: commandName,
+			Options: []*discord.ApplicationCommandInteractionDataOption{
+				{Name: optionName, Value: json.RawMessage(string(rawJSON))},
+			},
+		}}
+		interactionBytes, err := json.Marshal(interaction)
+		require.NoError(t, err)
+
+		interactionRequest, err := handler.unmarshal(interactionBytes)
+		require.NoError(t, err)
+		require.Equal(t, *optionVal, *interactionRequest.Data.Options[0].User)
+	})
+	t.Run("success/unmarshal role option", func(t *testing.T) {
+		optionName := "enabled"
+		optionVal := &discord.Role{ID: "0", Name: "admin"}
+		applicationCommand := &discord.ApplicationCommand{
+			Name:        commandName,
+			Description: "desc",
+			Options: []*discord.ApplicationCommandOption{
+				{Name: optionName, Type: discord.ApplicationCommandOptionTypeRole},
+			},
+		}
+		handler := &Handler{
+			Creds:           &discord.Credentials{PublicKey: hex.EncodeToString(publicKey)},
+			SlashCommandMap: NewSlashCommandMap(NewSlashCommand(applicationCommand, do, true, []string{"11111"})),
+		}
+		rawJSON, err := json.Marshal(optionVal)
+		require.NoError(t, err)
+		interaction := &discord.InteractionRequest{Data: &discord.ApplicationCommandInteractionData{
+			Name: commandName,
+			Options: []*discord.ApplicationCommandInteractionDataOption{
+				{Name: optionName, Value: json.RawMessage(string(rawJSON))},
+			},
+		}}
+		interactionBytes, err := json.Marshal(interaction)
+		require.NoError(t, err)
+
+		interactionRequest, err := handler.unmarshal(interactionBytes)
+		require.NoError(t, err)
+		require.Equal(t, *optionVal, *interactionRequest.Data.Options[0].Role)
 	})
 }
 

@@ -5,7 +5,7 @@ type Presence struct {
 	User         User           `json:"user"`
 	GuildID      string         `json:"guild_id"`
 	Status       PresenceStatus `json:"status"`
-	Activities   []interface{}  `json:"activities"` // todo - https://discord.com/developers/docs/topics/gateway#activity-object
+	Activities   []interface{}  `json:"activities"` // TODO - https://discord.com/developers/docs/topics/gateway#activity-object
 	ClientStatus ClientStatus   `json:"client_status"`
 }
 

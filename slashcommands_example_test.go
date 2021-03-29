@@ -10,7 +10,7 @@ var anotherSlashCommand disgoslash.SlashCommand
 var slashCommandMap disgoslash.SlashCommandMap
 
 func action(request *discord.InteractionRequest) *discord.InteractionResponse {
-	username := request.Data.Options[0].Value
+	username := *request.Data.Options[0].String
 	return &discord.InteractionResponse{
 		Type: discord.InteractionResponseTypeChannelMessageWithSource,
 		Data: &discord.InteractionApplicationCommandCallbackData{

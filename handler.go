@@ -5,6 +5,7 @@ import (
 	"crypto/ed25519"
 	"encoding/hex"
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -142,7 +143,65 @@ func (handler *Handler) unmarshal(data []byte) (*discord.InteractionRequest, err
 	if err := json.Unmarshal(data, interaction); err != nil {
 		return nil, err
 	}
+
+	if interaction.Data == nil {
+		return interaction, nil
+	}
+
+	slashCommand, ok := handler.SlashCommandMap[interaction.Data.Name]
+	if !ok {
+		return nil, errs.ErrNotImplemented
+	}
+
+	handler.unmarshalOptions(slashCommand.ApplicationCommand.Options, interaction.Data.Options)
 	return interaction, nil
+}
+
+func (handler *Handler) unmarshalOptions(commandOptions []*discord.ApplicationCommandOption, interactionOptions []*discord.ApplicationCommandInteractionDataOption) {
+	for i, commandOption := range commandOptions {
+		interactionOption := interactionOptions[i]
+		handler.unmarshalOption(commandOption, interactionOption)
+	}
+}
+
+func (handler *Handler) unmarshalOption(commandOption *discord.ApplicationCommandOption, interactionOption *discord.ApplicationCommandInteractionDataOption) {
+	switch commandOption.Type {
+	case discord.ApplicationCommandOptionTypeInteger:
+		interactionOption.Integer = new(int)
+		if err := json.Unmarshal(interactionOption.Value, interactionOption.Integer); err != nil {
+			log.Println("error:", err)
+		}
+	case discord.ApplicationCommandOptionTypeBoolean:
+		interactionOption.Boolean = new(bool)
+		if err := json.Unmarshal(interactionOption.Value, interactionOption.Boolean); err != nil {
+			log.Println("error:", err)
+		}
+	case discord.ApplicationCommandOptionTypeString:
+		interactionOption.String = new(string)
+		if err := json.Unmarshal(interactionOption.Value, interactionOption.String); err != nil {
+			fmt.Println("error:", err)
+		}
+	case discord.ApplicationCommandOptionTypeUser:
+		interactionOption.User = new(discord.User)
+		if err := json.Unmarshal(interactionOption.Value, interactionOption.User); err != nil {
+			fmt.Println("error:", err)
+		}
+	case discord.ApplicationCommandOptionTypeRole:
+		interactionOption.Role = new(discord.Role)
+		if err := json.Unmarshal(interactionOption.Value, interactionOption.Role); err != nil {
+			fmt.Println("error:", err)
+		}
+	case discord.ApplicationCommandOptionTypeSubCommand:
+		interactionOption.SubCommand = new(string)
+		if err := json.Unmarshal(interactionOption.Value, interactionOption.SubCommand); err != nil {
+			fmt.Println("error:", err)
+		}
+	case discord.ApplicationCommandOptionTypeSubCommandGroup:
+		interactionOption.SubCommandGroup = new(string)
+		if err := json.Unmarshal(interactionOption.Value, interactionOption.SubCommandGroup); err != nil {
+			fmt.Println("error:", err)
+		}
+	}
 }
 
 func (handler *Handler) marshal(response *discord.InteractionResponse) ([]byte, error) {

@@ -22,8 +22,8 @@ type Guild struct {
 	DefaultMessageNotifications NotificationLevel          `json:"default_message_notifications"`
 	ExplicitContentFilter       ExplicitContentFilterLevel `json:"explicit_content_filter"`
 	Roles                       []Role                     `json:"roles"`
-	Emojis                      []interface{}              `json:"emojis"`   // todo struct https://discord.com/developers/docs/resources/emoji#emoji-object
-	Features                    []interface{}              `json:"features"` // todo enum https://discord.com/developers/docs/resources/guild#guild-object-guild-features
+	Emojis                      []interface{}              `json:"emojis"`   // TODO struct https://discord.com/developers/docs/resources/emoji#emoji-object
+	Features                    []interface{}              `json:"features"` // TODO enum https://discord.com/developers/docs/resources/guild#guild-object-guild-features
 	MFALevel                    MFALevel                   `json:"mfa_level"`
 	ApplicationID               string                     `json:"application_id"`
 	SystemChannelID             string                     `json:"system_channel_id"`
@@ -33,9 +33,9 @@ type Guild struct {
 	Large                       bool                       `json:"large"`
 	Unavailable                 bool                       `json:"unavailable"`
 	MemberCount                 int                        `json:"member_count"`
-	VoiceStates                 []*interface{}             `json:"voice_states"` // todo struct https://discord.com/developers/docs/resources/voice#voice-state-object
+	VoiceStates                 []*interface{}             `json:"voice_states"` // TODO struct https://discord.com/developers/docs/resources/voice#voice-state-object
 	Members                     []*GuildMember             `json:"members"`      //
-	Channels                    []*interface{}             `json:"channels"`     // todo struct https://discord.com/developers/docs/resources/channel#channel-object
+	Channels                    []*interface{}             `json:"channels"`     // TODO struct https://discord.com/developers/docs/resources/channel#channel-object
 	Presences                   []*Presence                `json:"presences"`
 	MaxPresences                int                        `json:"max_presences"`
 	MaxMembers                  int                        `json:"max_members"`
@@ -49,7 +49,7 @@ type Guild struct {
 	MaxVideoChannelUsers        int                        `json:"max_video_channel_users"`
 	ApproximateMemberCount      int                        `json:"approximate_member_count"`
 	ApproximatePresenceCount    int                        `json:"approximate_presence_count"`
-	WelcomeScreen               interface{}                `json:"welcome_screen"` // todo struct https://discord.com/developers/docs/resources/guild#welcome-screen-object
+	WelcomeScreen               interface{}                `json:"welcome_screen"` // TODO struct https://discord.com/developers/docs/resources/guild#welcome-screen-object
 }
 
 // GuildMember - The properties of a member of a guild

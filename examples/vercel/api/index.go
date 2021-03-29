@@ -48,7 +48,7 @@ var command = &discord.ApplicationCommand{
 // hello is where the code of the slash command lives
 func hello(request *discord.InteractionRequest) *discord.InteractionResponse {
 	// Your custom code goes here!
-	msg := "Hello " + request.Data.Options[0].Value + "!"
+	msg := "Hello " + *request.Data.Options[0].String + "!"
 	return &discord.InteractionResponse{
 		Type: discord.InteractionResponseTypeChannelMessageWithSource,
 		Data: &discord.InteractionApplicationCommandCallbackData{

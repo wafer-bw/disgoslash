@@ -1,5 +1,7 @@
 package discord
 
+import "encoding/json"
+
 // https://discord.com/developers/docs/interactions/slash-commands
 
 // InteractionRequest - The base request model sent when a user invokes a command
@@ -58,9 +60,17 @@ type ApplicationCommandInteractionData struct {
 
 // ApplicationCommandInteractionDataOption - The params + values from the user
 type ApplicationCommandInteractionDataOption struct {
-	Name    string                                     `json:"name"`
-	Value   string                                     `json:"value"`
-	Options []*ApplicationCommandInteractionDataOption `json:"options"`
+	Name            string                                     `json:"name"`
+	Value           json.RawMessage                            `json:"value"`
+	Options         []*ApplicationCommandInteractionDataOption `json:"options"`
+	String          *string
+	Integer         *int
+	Boolean         *bool
+	User            *User
+	Role            *Role
+	SubCommandGroup *string // *ApplicationCommandInteractionDataOption    // TODO
+	SubCommand      *string // *ApplicationCommandInteractionDataOption    // TODO
+	// Channel         *Channel                                    // TODO https://discord.com/developers/docs/resources/channel
 }
 
 // AllowedMentionType - The type of allowed mention
@@ -93,9 +103,10 @@ type ApplicationCommandOption struct {
 }
 
 // ApplicationCommandOptionChoice - User choice for `string` and/or `int` type options
+// Value will always be unmarshalled as a string.
 type ApplicationCommandOptionChoice struct {
 	Name  string `json:"name"`
-	Value string `json:"value"`
+	Value string `json:"value,string"`
 }
 
 // ApplicationCommandOptionType - Types of command options
