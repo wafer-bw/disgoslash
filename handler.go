@@ -157,6 +157,10 @@ func (handler *Handler) unmarshal(data []byte) (*discord.InteractionRequest, err
 }
 
 func (handler *Handler) unmarshalOptions(commandOptions []*discord.ApplicationCommandOption, interactionOptions []*discord.ApplicationCommandInteractionDataOption) {
+	if len(commandOptions) != len(interactionOptions) {
+		log.Println("warning - options length mismatch")
+		return
+	}
 	for i, commandOption := range commandOptions {
 		interactionOption := interactionOptions[i]
 		handler.unmarshalOption(commandOption, interactionOption)
