@@ -36,8 +36,10 @@ type InteractionResponseType int
 
 // InteractionResponseType Enum
 const (
-	InteractionResponseTypePong                     InteractionResponseType = 1
-	InteractionResponseTypeAcknowledge              InteractionResponseType = 2
+	InteractionResponseTypePong InteractionResponseType = 1
+	// Deprecated by Discord
+	InteractionResponseTypeAcknowledge InteractionResponseType = 2
+	// Deprecated by Discord
 	InteractionResponseTypeChannelMessage           InteractionResponseType = 3
 	InteractionResponseTypeChannelMessageWithSource InteractionResponseType = 4
 	InteractionResponseTypeAcknowledgeWithSource    InteractionResponseType = 5
@@ -66,8 +68,8 @@ type ApplicationCommandInteractionDataOption struct {
 	String          *string
 	Integer         *int
 	Boolean         *bool
-	User            *User
-	Role            *Role
+	UserID          *string
+	RoleID          *string
 	SubCommandGroup *string // *ApplicationCommandInteractionDataOption    // TODO
 	SubCommand      *string // *ApplicationCommandInteractionDataOption    // TODO
 	// Channel         *Channel                                    // TODO https://discord.com/developers/docs/resources/channel

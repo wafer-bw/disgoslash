@@ -5,7 +5,6 @@ import (
 	"crypto/ed25519"
 	"encoding/hex"
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -179,27 +178,27 @@ func (handler *Handler) unmarshalOption(commandOption *discord.ApplicationComman
 	case discord.ApplicationCommandOptionTypeString:
 		interactionOption.String = new(string)
 		if err := json.Unmarshal(interactionOption.Value, interactionOption.String); err != nil {
-			fmt.Println("error:", err)
+			log.Println("error:", err)
 		}
 	case discord.ApplicationCommandOptionTypeUser:
-		interactionOption.User = new(discord.User)
-		if err := json.Unmarshal(interactionOption.Value, interactionOption.User); err != nil {
-			fmt.Println("error:", err)
+		interactionOption.UserID = new(string)
+		if err := json.Unmarshal(interactionOption.Value, interactionOption.UserID); err != nil {
+			log.Println("error:", err)
 		}
 	case discord.ApplicationCommandOptionTypeRole:
-		interactionOption.Role = new(discord.Role)
-		if err := json.Unmarshal(interactionOption.Value, interactionOption.Role); err != nil {
-			fmt.Println("error:", err)
+		interactionOption.RoleID = new(string)
+		if err := json.Unmarshal(interactionOption.Value, interactionOption.RoleID); err != nil {
+			log.Println("error:", err)
 		}
 	case discord.ApplicationCommandOptionTypeSubCommand:
 		interactionOption.SubCommand = new(string)
 		if err := json.Unmarshal(interactionOption.Value, interactionOption.SubCommand); err != nil {
-			fmt.Println("error:", err)
+			log.Println("error:", err)
 		}
 	case discord.ApplicationCommandOptionTypeSubCommandGroup:
 		interactionOption.SubCommandGroup = new(string)
 		if err := json.Unmarshal(interactionOption.Value, interactionOption.SubCommandGroup); err != nil {
-			fmt.Println("error:", err)
+			log.Println("error:", err)
 		}
 	}
 }

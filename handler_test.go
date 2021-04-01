@@ -196,8 +196,8 @@ func TestUnmarshal(t *testing.T) {
 		require.Equal(t, optionVal, *interactionRequest.Data.Options[0].Boolean)
 	})
 	t.Run("success/unmarshal user option", func(t *testing.T) {
-		optionName := "enabled"
-		optionVal := &discord.User{ID: "0", Username: "wafer"}
+		optionName := "user"
+		optionVal := "12345"
 		applicationCommand := &discord.ApplicationCommand{
 			Name:        commandName,
 			Description: "desc",
@@ -209,12 +209,10 @@ func TestUnmarshal(t *testing.T) {
 			Creds:           &discord.Credentials{PublicKey: hex.EncodeToString(publicKey)},
 			SlashCommandMap: NewSlashCommandMap(NewSlashCommand(applicationCommand, do, true, []string{"11111"})),
 		}
-		rawJSON, err := json.Marshal(optionVal)
-		require.NoError(t, err)
 		interaction := &discord.InteractionRequest{Data: &discord.ApplicationCommandInteractionData{
 			Name: commandName,
 			Options: []*discord.ApplicationCommandInteractionDataOption{
-				{Name: optionName, Value: json.RawMessage(string(rawJSON))},
+				{Name: optionName, Value: json.RawMessage(fmt.Sprintf(`"%s"`, optionVal))},
 			},
 		}}
 		interactionBytes, err := json.Marshal(interaction)
@@ -222,11 +220,11 @@ func TestUnmarshal(t *testing.T) {
 
 		interactionRequest, err := handler.unmarshal(interactionBytes)
 		require.NoError(t, err)
-		require.Equal(t, *optionVal, *interactionRequest.Data.Options[0].User)
+		require.Equal(t, optionVal, *interactionRequest.Data.Options[0].UserID)
 	})
 	t.Run("success/unmarshal role option", func(t *testing.T) {
-		optionName := "enabled"
-		optionVal := &discord.Role{ID: "0", Name: "admin"}
+		optionName := "role"
+		optionVal := "12345"
 		applicationCommand := &discord.ApplicationCommand{
 			Name:        commandName,
 			Description: "desc",
@@ -238,12 +236,10 @@ func TestUnmarshal(t *testing.T) {
 			Creds:           &discord.Credentials{PublicKey: hex.EncodeToString(publicKey)},
 			SlashCommandMap: NewSlashCommandMap(NewSlashCommand(applicationCommand, do, true, []string{"11111"})),
 		}
-		rawJSON, err := json.Marshal(optionVal)
-		require.NoError(t, err)
 		interaction := &discord.InteractionRequest{Data: &discord.ApplicationCommandInteractionData{
 			Name: commandName,
 			Options: []*discord.ApplicationCommandInteractionDataOption{
-				{Name: optionName, Value: json.RawMessage(string(rawJSON))},
+				{Name: optionName, Value: json.RawMessage(fmt.Sprintf(`"%s"`, optionVal))},
 			},
 		}}
 		interactionBytes, err := json.Marshal(interaction)
@@ -251,7 +247,7 @@ func TestUnmarshal(t *testing.T) {
 
 		interactionRequest, err := handler.unmarshal(interactionBytes)
 		require.NoError(t, err)
-		require.Equal(t, *optionVal, *interactionRequest.Data.Options[0].Role)
+		require.Equal(t, optionVal, *interactionRequest.Data.Options[0].RoleID)
 	})
 }
 
