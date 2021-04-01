@@ -62,17 +62,15 @@ type ApplicationCommandInteractionData struct {
 
 // ApplicationCommandInteractionDataOption - The params + values from the user
 type ApplicationCommandInteractionDataOption struct {
-	Name            string                                     `json:"name"`
-	Value           json.RawMessage                            `json:"value"`
-	Options         []*ApplicationCommandInteractionDataOption `json:"options"`
-	String          *string
-	Integer         *int
-	Boolean         *bool
-	UserID          *string
-	RoleID          *string
-	SubCommandGroup *string // *ApplicationCommandInteractionDataOption    // TODO
-	SubCommand      *string // *ApplicationCommandInteractionDataOption    // TODO
-	// Channel         *Channel                                    // TODO https://discord.com/developers/docs/resources/channel
+	Name      string                                     `json:"name"`
+	Value     json.RawMessage                            `json:"value"`
+	Options   []*ApplicationCommandInteractionDataOption `json:"options"`
+	String    *string
+	Integer   *int
+	Boolean   *bool
+	UserID    *string
+	RoleID    *string
+	ChannelID *string
 }
 
 // AllowedMentionType - The type of allowed mention

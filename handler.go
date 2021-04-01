@@ -172,37 +172,42 @@ func (handler *Handler) unmarshalOption(commandOption *discord.ApplicationComman
 	case discord.ApplicationCommandOptionTypeInteger:
 		interactionOption.Integer = new(int)
 		if err := json.Unmarshal(interactionOption.Value, interactionOption.Integer); err != nil {
-			log.Println("error:", err)
+			log.Println(err)
 		}
 	case discord.ApplicationCommandOptionTypeBoolean:
 		interactionOption.Boolean = new(bool)
 		if err := json.Unmarshal(interactionOption.Value, interactionOption.Boolean); err != nil {
-			log.Println("error:", err)
+			log.Println(err)
 		}
 	case discord.ApplicationCommandOptionTypeString:
 		interactionOption.String = new(string)
 		if err := json.Unmarshal(interactionOption.Value, interactionOption.String); err != nil {
-			log.Println("error:", err)
+			log.Println(err)
 		}
 	case discord.ApplicationCommandOptionTypeUser:
 		interactionOption.UserID = new(string)
 		if err := json.Unmarshal(interactionOption.Value, interactionOption.UserID); err != nil {
-			log.Println("error:", err)
+			log.Println(err)
 		}
 	case discord.ApplicationCommandOptionTypeRole:
 		interactionOption.RoleID = new(string)
 		if err := json.Unmarshal(interactionOption.Value, interactionOption.RoleID); err != nil {
-			log.Println("error:", err)
+			log.Println(err)
+		}
+	case discord.ApplicationCommandOptionTypeChannel:
+		interactionOption.ChannelID = new(string)
+		if err := json.Unmarshal(interactionOption.Value, interactionOption.ChannelID); err != nil {
+			log.Println(err)
 		}
 	case discord.ApplicationCommandOptionTypeSubCommand:
 		interactionOption.SubCommand = new(string)
 		if err := json.Unmarshal(interactionOption.Value, interactionOption.SubCommand); err != nil {
-			log.Println("error:", err)
+			log.Println(err)
 		}
 	case discord.ApplicationCommandOptionTypeSubCommandGroup:
 		interactionOption.SubCommandGroup = new(string)
 		if err := json.Unmarshal(interactionOption.Value, interactionOption.SubCommandGroup); err != nil {
-			log.Println("error:", err)
+			log.Println(err)
 		}
 	}
 }

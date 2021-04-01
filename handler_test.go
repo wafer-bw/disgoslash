@@ -249,6 +249,33 @@ func TestUnmarshal(t *testing.T) {
 		require.NoError(t, err)
 		require.Equal(t, optionVal, *interactionRequest.Data.Options[0].RoleID)
 	})
+	t.Run("success/unmarshal channel option", func(t *testing.T) {
+		optionName := "channel"
+		optionVal := "12345"
+		applicationCommand := &discord.ApplicationCommand{
+			Name:        commandName,
+			Description: "desc",
+			Options: []*discord.ApplicationCommandOption{
+				{Name: optionName, Type: discord.ApplicationCommandOptionTypeChannel},
+			},
+		}
+		handler := &Handler{
+			Creds:           &discord.Credentials{PublicKey: hex.EncodeToString(publicKey)},
+			SlashCommandMap: NewSlashCommandMap(NewSlashCommand(applicationCommand, do, true, []string{"11111"})),
+		}
+		interaction := &discord.InteractionRequest{Data: &discord.ApplicationCommandInteractionData{
+			Name: commandName,
+			Options: []*discord.ApplicationCommandInteractionDataOption{
+				{Name: optionName, Value: json.RawMessage(fmt.Sprintf(`"%s"`, optionVal))},
+			},
+		}}
+		interactionBytes, err := json.Marshal(interaction)
+		require.NoError(t, err)
+
+		interactionRequest, err := handler.unmarshal(interactionBytes)
+		require.NoError(t, err)
+		require.Equal(t, optionVal, *interactionRequest.Data.Options[0].ChannelID)
+	})
 }
 
 func TestVerify(t *testing.T) {
