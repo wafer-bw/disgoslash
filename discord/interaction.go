@@ -63,7 +63,7 @@ type ApplicationCommandInteractionData struct {
 // ApplicationCommandInteractionDataOption - The params + values from the user
 type ApplicationCommandInteractionDataOption struct {
 	Name      string                                     `json:"name"`
-	Value     json.RawMessage                            `json:"value"`
+	Value     json.RawMessage                            `json:"value"` // TODO - rename to RawValue and switch parsing to just stringify everything into Value and attach methods to this object that return correct remaining types
 	Options   []*ApplicationCommandInteractionDataOption `json:"options"`
 	String    *string
 	Integer   *int

@@ -152,18 +152,44 @@ func (handler *Handler) unmarshal(data []byte) (*discord.InteractionRequest, err
 		return nil, errs.ErrNotImplemented
 	}
 
+	// data, _ = json.MarshalIndent(slashCommand.ApplicationCommand, "", "    ")
+	// fmt.Println(string(data))
+	// fmt.Println("-------")
+	// data, _ = json.MarshalIndent(interaction, "", "    ")
+	// fmt.Println(string(data))
+	// fmt.Println("-------")
+
 	handler.unmarshalOptions(slashCommand.ApplicationCommand.Options, interaction.Data.Options)
 	return interaction, nil
 }
 
 func (handler *Handler) unmarshalOptions(commandOptions []*discord.ApplicationCommandOption, interactionOptions []*discord.ApplicationCommandInteractionDataOption) {
-	if len(commandOptions) != len(interactionOptions) {
-		log.Println("warning - options length mismatch")
-		return
-	}
 	for i, commandOption := range commandOptions {
-		interactionOption := interactionOptions[i]
-		handler.unmarshalOption(commandOption, interactionOption)
+		if i == 0 && isSubCommandOrSubcommandGroup(commandOption) {
+			// There will only ever be one subcommand/subcommandgroup interaction option
+			// when a command option type is subcommand/subcommandgroup
+			handler.unmarshalOption(getCommandOptionByName(commandOptions, interactionOptions[0].Name), interactionOptions[0])
+			break
+		}
+		handler.unmarshalOption(commandOption, interactionOptions[i])
+	}
+}
+
+func getCommandOptionByName(commandOptions []*discord.ApplicationCommandOption, name string) *discord.ApplicationCommandOption {
+	for _, commandOption := range commandOptions {
+		if commandOption.Name == name {
+			return commandOption
+		}
+	}
+	return nil
+}
+
+func isSubCommandOrSubcommandGroup(commandOption *discord.ApplicationCommandOption) bool {
+	switch commandOption.Type {
+	case discord.ApplicationCommandOptionTypeSubCommand, discord.ApplicationCommandOptionTypeSubCommandGroup:
+		return true
+	default:
+		return false
 	}
 }
 
@@ -199,16 +225,8 @@ func (handler *Handler) unmarshalOption(commandOption *discord.ApplicationComman
 		if err := json.Unmarshal(interactionOption.Value, interactionOption.ChannelID); err != nil {
 			log.Println(err)
 		}
-	case discord.ApplicationCommandOptionTypeSubCommand:
-		interactionOption.SubCommand = new(string)
-		if err := json.Unmarshal(interactionOption.Value, interactionOption.SubCommand); err != nil {
-			log.Println(err)
-		}
-	case discord.ApplicationCommandOptionTypeSubCommandGroup:
-		interactionOption.SubCommandGroup = new(string)
-		if err := json.Unmarshal(interactionOption.Value, interactionOption.SubCommandGroup); err != nil {
-			log.Println(err)
-		}
+	case discord.ApplicationCommandOptionTypeSubCommand, discord.ApplicationCommandOptionTypeSubCommandGroup:
+		handler.unmarshalOptions(commandOption.Options, interactionOption.Options)
 	}
 }
 

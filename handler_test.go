@@ -276,6 +276,142 @@ func TestUnmarshal(t *testing.T) {
 		require.NoError(t, err)
 		require.Equal(t, optionVal, *interactionRequest.Data.Options[0].ChannelID)
 	})
+	t.Run("success/unmarshal subcommand option", func(t *testing.T) {
+		optionVal := "abc"
+		applicationCommand := &discord.ApplicationCommand{
+			Name:        commandName,
+			Description: "desc",
+			Options: []*discord.ApplicationCommandOption{
+				{
+					Name:        "subcommanda",
+					Description: "SUBCOMMAND A",
+					Type:        discord.ApplicationCommandOptionTypeSubCommand,
+					Options: []*discord.ApplicationCommandOption{
+						{
+							Name:        "integer",
+							Description: "integer",
+							Type:        discord.ApplicationCommandOptionTypeInteger,
+							Required:    true,
+						},
+					},
+				},
+				{
+					Name:        "subcommandb",
+					Description: "SUBCOMMAND B",
+					Type:        discord.ApplicationCommandOptionTypeSubCommand,
+					Options: []*discord.ApplicationCommandOption{
+						{
+							Name:        "string",
+							Description: "string",
+							Type:        discord.ApplicationCommandOptionTypeString,
+							Required:    true,
+						},
+					},
+				},
+			},
+		}
+		handler := &Handler{
+			Creds:           &discord.Credentials{PublicKey: hex.EncodeToString(publicKey)},
+			SlashCommandMap: NewSlashCommandMap(NewSlashCommand(applicationCommand, do, true, []string{"11111"})),
+		}
+		interaction := &discord.InteractionRequest{Type: discord.InteractionTypeApplicationCommand, Data: &discord.ApplicationCommandInteractionData{
+			Name: commandName,
+			Options: []*discord.ApplicationCommandInteractionDataOption{
+				{
+					Name: applicationCommand.Options[1].Name,
+					Options: []*discord.ApplicationCommandInteractionDataOption{
+						{
+							Name:  applicationCommand.Options[1].Options[0].Name,
+							Value: json.RawMessage(fmt.Sprintf(`"%s"`, optionVal)),
+						},
+					},
+				},
+			},
+		}}
+		interactionBytes, err := json.Marshal(interaction)
+		require.NoError(t, err)
+
+		interactionRequest, err := handler.unmarshal(interactionBytes)
+		require.NoError(t, err)
+
+		data, _ := json.MarshalIndent(interactionRequest, "", " ")
+		fmt.Println(string(data))
+		require.Equal(t, optionVal, *interactionRequest.Data.Options[0].Options[0].String)
+	})
+	t.Run("success/unmarshal subcommandgroup option", func(t *testing.T) {
+		optionVal := 123
+		applicationCommand := &discord.ApplicationCommand{
+			Name:        commandName,
+			Description: "desc",
+			Options: []*discord.ApplicationCommandOption{
+				{
+					Name:        "subcommandgroupa",
+					Description: "SUBCOMMANDGROUP A",
+					Type:        discord.ApplicationCommandOptionTypeSubCommandGroup,
+					Options: []*discord.ApplicationCommandOption{
+						{
+							Name:        "subcommanda",
+							Description: "SUBCOMMAND A",
+							Type:        discord.ApplicationCommandOptionTypeSubCommand,
+							Options: []*discord.ApplicationCommandOption{
+								{
+									Name:        "integer",
+									Description: "integer",
+									Type:        discord.ApplicationCommandOptionTypeInteger,
+									Required:    true,
+								},
+							},
+						},
+						{
+							Name:        "subcommandb",
+							Description: "SUBCOMMAND B",
+							Type:        discord.ApplicationCommandOptionTypeSubCommand,
+							Options: []*discord.ApplicationCommandOption{
+								{
+									Name:        "string",
+									Description: "string",
+									Type:        discord.ApplicationCommandOptionTypeString,
+									Required:    true,
+								},
+							},
+						},
+					},
+				},
+			},
+		}
+		handler := &Handler{
+			Creds:           &discord.Credentials{PublicKey: hex.EncodeToString(publicKey)},
+			SlashCommandMap: NewSlashCommandMap(NewSlashCommand(applicationCommand, do, true, []string{"11111"})),
+		}
+		interaction := &discord.InteractionRequest{Type: discord.InteractionTypeApplicationCommand, Data: &discord.ApplicationCommandInteractionData{
+			Name: commandName,
+			Options: []*discord.ApplicationCommandInteractionDataOption{
+				{
+					Name: applicationCommand.Options[0].Name,
+					Options: []*discord.ApplicationCommandInteractionDataOption{
+						{
+							Name: applicationCommand.Options[0].Options[0].Name,
+							Options: []*discord.ApplicationCommandInteractionDataOption{
+								{
+									Name:  applicationCommand.Options[0].Options[0].Options[0].Name,
+									Value: json.RawMessage(fmt.Sprintf(`%d`, optionVal)),
+								},
+							},
+						},
+					},
+				},
+			},
+		}}
+		interactionBytes, err := json.Marshal(interaction)
+		require.NoError(t, err)
+
+		interactionRequest, err := handler.unmarshal(interactionBytes)
+		require.NoError(t, err)
+
+		data, _ := json.MarshalIndent(interactionRequest, "", " ")
+		fmt.Println(string(data))
+		require.Equal(t, optionVal, *interactionRequest.Data.Options[0].Options[0].Options[0].Integer)
+	})
 }
 
 func TestVerify(t *testing.T) {
