@@ -127,3 +127,12 @@ In your discord server type `/hello`, press tab, enter a name, then hit enter. T
 /hello name: Bob
 #> Hello Bob!
 ```
+
+## Outstanding Features
+- [ ] Stable release version
+- [ ] Internal client does not have an Edit method, it only uses Discord's create and delete endpoints right now
+- [ ] Syncing application command permissions
+    - This is a new feature to Slach Commands added recently by Discord
+- [ ] Some models in [./discord](./discord) are not translated to Go structs in yet
+- [ ] Exporter to export ApplicationCommands to JSON files
+- [ ] CLI tool to list, delete, create, update application commands manually
