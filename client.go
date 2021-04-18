@@ -9,13 +9,10 @@ import (
 	"net/http"
 	"time"
 
-	discord "github.com/wafer-bw/disgoslash/discord"
-	"github.com/wafer-bw/disgoslash/errs"
+	"github.com/wafer-bw/disgoslash/discord"
 )
 
 const maxAttempts int = 3
-const baseURL string = "https://discord.com/api"
-const apiVersion string = "v8"
 
 // client implements a `clientInterface` interface's properties
 type client struct {
@@ -33,7 +30,7 @@ type clientInterface interface {
 
 // NewClient creates a new `clientInterface` instance
 func newClient(creds *discord.Credentials) clientInterface {
-	return constructClient(creds, baseURL, apiVersion)
+	return constructClient(creds, discord.BaseURL, discord.APIVersion)
 }
 
 func constructClient(creds *discord.Credentials, baseURL string, apiVersion string) clientInterface {
@@ -95,7 +92,7 @@ func (client *client) createApplicationCommand(url string, command *discord.Appl
 	if status, data, err := client.request(http.MethodPost, url, body); err != nil {
 		return err
 	} else if status == http.StatusOK {
-		return errs.ErrAlreadyExists
+		return ErrAlreadyExists
 	} else if status != http.StatusCreated {
 		return fmt.Errorf("%d - %s", status, string(data))
 	}
@@ -133,9 +130,9 @@ func (client *client) request(method string, url string, body io.Reader) (int, [
 
 		switch response.StatusCode {
 		case http.StatusForbidden:
-			return 0, nil, errs.ErrForbidden
+			return 0, nil, ErrForbidden
 		case http.StatusUnauthorized:
-			return 0, nil, errs.ErrUnauthorized
+			return 0, nil, ErrUnauthorized
 		}
 
 		data, err := ioutil.ReadAll(response.Body)
@@ -153,7 +150,7 @@ func (client *client) request(method string, url string, body io.Reader) (int, [
 		}
 		time.Sleep(waitTime)
 	}
-	return 0, nil, errs.ErrMaxRetries
+	return 0, nil, ErrMaxRetries
 }
 
 func unmarshal(body []byte, v interface{}) error {

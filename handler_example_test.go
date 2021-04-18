@@ -4,7 +4,7 @@ import (
 	"net/http"
 
 	"github.com/wafer-bw/disgoslash"
-	discord "github.com/wafer-bw/disgoslash/discord"
+	"github.com/wafer-bw/disgoslash/discord"
 )
 
 func ExampleHandler_Handle() {

@@ -11,7 +11,6 @@ import (
 	"time"
 
 	"github.com/wafer-bw/disgoslash/discord"
-	"github.com/wafer-bw/disgoslash/errs"
 )
 
 // Handler is used to handle Discord slash command interaction requests.
@@ -87,7 +86,7 @@ func (handler *Handler) resolve(r *http.Request) (*discord.InteractionRequest, e
 	}
 
 	if !verify(body, r.Header, handler.Creds.PublicKey) {
-		return nil, errs.ErrUnauthorized
+		return nil, ErrUnauthorized
 	}
 
 	return handler.unmarshal(body)
@@ -100,18 +99,18 @@ func (handler *Handler) execute(interaction *discord.InteractionRequest) (*disco
 	case discord.InteractionTypeApplicationCommand:
 		return handler.doAction(interaction)
 	default:
-		return nil, errs.ErrInvalidInteractionType
+		return nil, ErrInvalidInteractionType
 	}
 }
 
 func (handler *Handler) doAction(interaction *discord.InteractionRequest) (*discord.InteractionResponse, error) {
 	slashCommand, ok := handler.SlashCommandMap[interaction.Data.Name]
 	if !ok {
-		return nil, errs.ErrNotImplemented
+		return nil, ErrNotImplemented
 	}
 	response := slashCommand.Action(interaction)
 	if response == nil {
-		return nil, errs.ErrNilInteractionResponse
+		return nil, ErrNilInteractionResponse
 	}
 	return response, nil
 }
@@ -126,11 +125,11 @@ func (handler *Handler) respond(resp response) {
 		if _, err := resp.w.Write(resp.body); resp.err != nil {
 			handler.respond(response{w: resp.w, body: nil, err: err})
 		}
-	case errs.ErrInvalidInteractionType:
+	case ErrInvalidInteractionType:
 		http.Error(resp.w, resp.err.Error(), http.StatusBadRequest)
-	case errs.ErrUnauthorized:
+	case ErrUnauthorized:
 		http.Error(resp.w, resp.err.Error(), http.StatusUnauthorized)
-	case errs.ErrNotImplemented:
+	case ErrNotImplemented:
 		http.Error(resp.w, resp.err.Error(), http.StatusNotImplemented)
 	default:
 		http.Error(resp.w, resp.err.Error(), http.StatusInternalServerError)
@@ -142,92 +141,7 @@ func (handler *Handler) unmarshal(data []byte) (*discord.InteractionRequest, err
 	if err := json.Unmarshal(data, interaction); err != nil {
 		return nil, err
 	}
-
-	if interaction.Data == nil {
-		return interaction, nil
-	}
-
-	slashCommand, ok := handler.SlashCommandMap[interaction.Data.Name]
-	if !ok {
-		return nil, errs.ErrNotImplemented
-	}
-
-	// data, _ = json.MarshalIndent(slashCommand.ApplicationCommand, "", "    ")
-	// fmt.Println(string(data))
-	// fmt.Println("-------")
-	// data, _ = json.MarshalIndent(interaction, "", "    ")
-	// fmt.Println(string(data))
-	// fmt.Println("-------")
-
-	handler.unmarshalOptions(slashCommand.ApplicationCommand.Options, interaction.Data.Options)
 	return interaction, nil
-}
-
-func (handler *Handler) unmarshalOptions(commandOptions []*discord.ApplicationCommandOption, interactionOptions []*discord.ApplicationCommandInteractionDataOption) {
-	for i, commandOption := range commandOptions {
-		if i == 0 && isSubCommandOrSubcommandGroup(commandOption) {
-			// There will only ever be one subcommand/subcommandgroup interaction option
-			// when a command option type is subcommand/subcommandgroup
-			handler.unmarshalOption(getCommandOptionByName(commandOptions, interactionOptions[0].Name), interactionOptions[0])
-			break
-		}
-		handler.unmarshalOption(commandOption, interactionOptions[i])
-	}
-}
-
-func getCommandOptionByName(commandOptions []*discord.ApplicationCommandOption, name string) *discord.ApplicationCommandOption {
-	for _, commandOption := range commandOptions {
-		if commandOption.Name == name {
-			return commandOption
-		}
-	}
-	return nil
-}
-
-func isSubCommandOrSubcommandGroup(commandOption *discord.ApplicationCommandOption) bool {
-	switch commandOption.Type {
-	case discord.ApplicationCommandOptionTypeSubCommand, discord.ApplicationCommandOptionTypeSubCommandGroup:
-		return true
-	default:
-		return false
-	}
-}
-
-func (handler *Handler) unmarshalOption(commandOption *discord.ApplicationCommandOption, interactionOption *discord.ApplicationCommandInteractionDataOption) {
-	switch commandOption.Type {
-	case discord.ApplicationCommandOptionTypeInteger:
-		interactionOption.Integer = new(int)
-		if err := json.Unmarshal(interactionOption.Value, interactionOption.Integer); err != nil {
-			log.Println(err)
-		}
-	case discord.ApplicationCommandOptionTypeBoolean:
-		interactionOption.Boolean = new(bool)
-		if err := json.Unmarshal(interactionOption.Value, interactionOption.Boolean); err != nil {
-			log.Println(err)
-		}
-	case discord.ApplicationCommandOptionTypeString:
-		interactionOption.String = new(string)
-		if err := json.Unmarshal(interactionOption.Value, interactionOption.String); err != nil {
-			log.Println(err)
-		}
-	case discord.ApplicationCommandOptionTypeUser:
-		interactionOption.UserID = new(string)
-		if err := json.Unmarshal(interactionOption.Value, interactionOption.UserID); err != nil {
-			log.Println(err)
-		}
-	case discord.ApplicationCommandOptionTypeRole:
-		interactionOption.RoleID = new(string)
-		if err := json.Unmarshal(interactionOption.Value, interactionOption.RoleID); err != nil {
-			log.Println(err)
-		}
-	case discord.ApplicationCommandOptionTypeChannel:
-		interactionOption.ChannelID = new(string)
-		if err := json.Unmarshal(interactionOption.Value, interactionOption.ChannelID); err != nil {
-			log.Println(err)
-		}
-	case discord.ApplicationCommandOptionTypeSubCommand, discord.ApplicationCommandOptionTypeSubCommandGroup:
-		handler.unmarshalOptions(commandOption.Options, interactionOption.Options)
-	}
 }
 
 func (handler *Handler) marshal(response *discord.InteractionResponse) ([]byte, error) {

@@ -1,6 +1,8 @@
 package discord
 
-import "encoding/json"
+import (
+	"encoding/json"
+)
 
 // https://discord.com/developers/docs/interactions/slash-commands
 
@@ -37,9 +39,9 @@ type InteractionResponseType int
 // InteractionResponseType Enum
 const (
 	InteractionResponseTypePong InteractionResponseType = 1
-	// Deprecated by Discord
+	// InteractionResponseTypeAcknowledge has been deprecated by Discord
 	InteractionResponseTypeAcknowledge InteractionResponseType = 2
-	// Deprecated by Discord
+	// InteractionResponseTypeChannelMessage has been deprecated by Discord
 	InteractionResponseTypeChannelMessage           InteractionResponseType = 3
 	InteractionResponseTypeChannelMessageWithSource InteractionResponseType = 4
 	InteractionResponseTypeAcknowledgeWithSource    InteractionResponseType = 5
@@ -62,15 +64,81 @@ type ApplicationCommandInteractionData struct {
 
 // ApplicationCommandInteractionDataOption - The params + values from the user
 type ApplicationCommandInteractionDataOption struct {
-	Name      string                                     `json:"name"`
-	Value     json.RawMessage                            `json:"value"` // TODO - rename to RawValue and switch parsing to just stringify everything into Value and attach methods to this object that return correct remaining types
-	Options   []*ApplicationCommandInteractionDataOption `json:"options"`
-	String    *string
-	Integer   *int
-	Boolean   *bool
-	UserID    *string
-	RoleID    *string
-	ChannelID *string
+	Name    string                                     `json:"name"`
+	Value   json.RawMessage                            `json:"value"`
+	Options []*ApplicationCommandInteractionDataOption `json:"options"`
+}
+
+// GetString returns the unmarshalled Value of the option as a string pointer,
+// if the Value was null in the source JSON it will the pointer will be nil.
+//
+// This exists for clarity and should be used when the interaction's
+// corresponding ApplicationCommandOptionType is ApplicationCommandOptionTypeString
+// in which case the Discord API will send a string Value in the interaction request
+func (option ApplicationCommandInteractionDataOption) GetString() (*string, error) {
+	val := new(string)
+	if err := json.Unmarshal(option.Value, val); err != nil {
+		return nil, err
+	}
+	return val, nil
+}
+
+// GetInt returns the unmarshalled Value of the option as an int pointer,
+// if the Value was null in the source JSON it will the pointer will be nil.
+//
+// This exists for clarity and should be used when the interaction's
+// corresponding ApplicationCommandOptionType is ApplicationCommandOptionTypeInteger
+// in which case the Discord API will send an int Value in the interaction request
+func (option ApplicationCommandInteractionDataOption) GetInt() (*int, error) {
+	val := new(int)
+	if err := json.Unmarshal(option.Value, val); err != nil {
+		return nil, err
+	}
+	return val, nil
+}
+
+// GetBool returns the unmarshalled Value of the option as a bool pointer,
+// if the Value was null in the source JSON it will the pointer will be nil.
+//
+// This exists for clarity and should be used when the interaction's
+// correspoinding ApplicationCommandOptionType is ApplicationCommandOptionTypeBoolean
+// in which case the Discord API will send a bool Value in the interaction request
+func (option ApplicationCommandInteractionDataOption) GetBool() (*bool, error) {
+	val := new(bool)
+	if err := json.Unmarshal(option.Value, val); err != nil {
+		return nil, err
+	}
+	return val, nil
+}
+
+// GetUserID is an alias for ApplicationCommandInteractionDataOption.GetString
+// returning the unmarshalled Value of the option as a string pointer.
+//
+// This exists for clarity and should be used when the interaction's
+// correspoinding ApplicationCommandOptionType is ApplicationCommandOptionTypeUser
+// in which case the Discord API will send the User ID as a string Value in the interaction request
+func (option ApplicationCommandInteractionDataOption) GetUserID() (*string, error) {
+	return option.GetString()
+}
+
+// GetRoleID is an alias for ApplicationCommandInteractionDataOption.GetString
+// returning the unmarshalled Value of the option as a string pointer.
+//
+// This exists for clarity and should be used when the interaction's
+// correspoinding ApplicationCommandOptionType is ApplicationCommandOptionTypeRole
+// in which case the Discord API will send the Role ID as a string Value in the interaction request
+func (option ApplicationCommandInteractionDataOption) GetRoleID() (*string, error) {
+	return option.GetString()
+}
+
+// GetChannelID is an alias for ApplicationCommandInteractionDataOption.GetString
+// returning the unmarshalled Value of the option as a string pointer.
+//
+// This exists for clarity and should be used when the interaction's
+// correspoinding ApplicationCommandOptionType is ApplicationCommandOptionTypeChannel
+// in which case the Discord API will send the Channel ID as a string Value in the interaction request
+func (option ApplicationCommandInteractionDataOption) GetChannelID() (*string, error) {
+	return option.GetString()
 }
 
 // AllowedMentionType - The type of allowed mention

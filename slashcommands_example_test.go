@@ -2,7 +2,7 @@ package disgoslash_test
 
 import (
 	"github.com/wafer-bw/disgoslash"
-	discord "github.com/wafer-bw/disgoslash/discord"
+	"github.com/wafer-bw/disgoslash/discord"
 )
 
 var slashCommand disgoslash.SlashCommand
@@ -10,11 +10,16 @@ var anotherSlashCommand disgoslash.SlashCommand
 var slashCommandMap disgoslash.SlashCommandMap
 
 func action(request *discord.InteractionRequest) *discord.InteractionResponse {
-	username := *request.Data.Options[0].String
+	var msg string
+	if username, err := request.Data.Options[0].GetString(); err != nil {
+		msg = "Error: " + err.Error()
+	} else {
+		msg = "Hello " + *username + "!"
+	}
 	return &discord.InteractionResponse{
 		Type: discord.InteractionResponseTypeChannelMessageWithSource,
 		Data: &discord.InteractionApplicationCommandCallbackData{
-			Content: "Hello " + username + "!",
+			Content: msg,
 		},
 	}
 }

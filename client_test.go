@@ -9,7 +9,6 @@ import (
 
 	"github.com/stretchr/testify/require"
 	"github.com/wafer-bw/disgoslash/discord"
-	"github.com/wafer-bw/disgoslash/errs"
 )
 
 func TestNewClient(t *testing.T) {
@@ -26,7 +25,7 @@ func TestList(t *testing.T) {
 			require.NoError(t, err)
 		}))
 		defer func() { mockServer.Close() }()
-		client := constructClient(&discord.Credentials{}, mockServer.URL, apiVersion)
+		client := constructClient(&discord.Credentials{}, mockServer.URL, discord.APIVersion)
 
 		commands, err := client.list("")
 		require.NoError(t, err)
@@ -40,7 +39,7 @@ func TestList(t *testing.T) {
 			require.NoError(t, err)
 		}))
 		defer func() { mockServer.Close() }()
-		client := constructClient(&discord.Credentials{}, mockServer.URL, apiVersion)
+		client := constructClient(&discord.Credentials{}, mockServer.URL, discord.APIVersion)
 
 		commands, err := client.list(guildID)
 		require.NoError(t, err)
@@ -51,7 +50,7 @@ func TestList(t *testing.T) {
 			w.WriteHeader(http.StatusUnauthorized)
 		}))
 		defer func() { mockServer.Close() }()
-		client := constructClient(&discord.Credentials{}, mockServer.URL, apiVersion)
+		client := constructClient(&discord.Credentials{}, mockServer.URL, discord.APIVersion)
 
 		_, err := client.list(guildID)
 		require.Error(t, err)
@@ -61,7 +60,7 @@ func TestList(t *testing.T) {
 			w.WriteHeader(http.StatusInternalServerError)
 		}))
 		defer func() { mockServer.Close() }()
-		client := constructClient(&discord.Credentials{}, mockServer.URL, apiVersion)
+		client := constructClient(&discord.Credentials{}, mockServer.URL, discord.APIVersion)
 
 		_, err := client.list(guildID)
 		require.Error(t, err)
@@ -74,7 +73,7 @@ func TestDelete(t *testing.T) {
 			w.WriteHeader(http.StatusNoContent)
 		}))
 		defer func() { mockServer.Close() }()
-		client := constructClient(&discord.Credentials{}, mockServer.URL, apiVersion)
+		client := constructClient(&discord.Credentials{}, mockServer.URL, discord.APIVersion)
 
 		err := client.delete("", "12345")
 		require.NoError(t, err)
@@ -84,7 +83,7 @@ func TestDelete(t *testing.T) {
 			w.WriteHeader(http.StatusNoContent)
 		}))
 		defer func() { mockServer.Close() }()
-		client := constructClient(&discord.Credentials{}, mockServer.URL, apiVersion)
+		client := constructClient(&discord.Credentials{}, mockServer.URL, discord.APIVersion)
 
 		err := client.delete("12345", "12345")
 		require.NoError(t, err)
@@ -94,7 +93,7 @@ func TestDelete(t *testing.T) {
 			w.WriteHeader(http.StatusUnauthorized)
 		}))
 		defer func() { mockServer.Close() }()
-		client := constructClient(&discord.Credentials{}, mockServer.URL, apiVersion)
+		client := constructClient(&discord.Credentials{}, mockServer.URL, discord.APIVersion)
 
 		err := client.delete("12345", "12345")
 		require.Error(t, err)
@@ -104,7 +103,7 @@ func TestDelete(t *testing.T) {
 			w.WriteHeader(http.StatusInternalServerError)
 		}))
 		defer func() { mockServer.Close() }()
-		client := constructClient(&discord.Credentials{}, mockServer.URL, apiVersion)
+		client := constructClient(&discord.Credentials{}, mockServer.URL, discord.APIVersion)
 
 		err := client.delete("12345", "12345")
 		require.Error(t, err)
@@ -117,7 +116,7 @@ func TestCreate(t *testing.T) {
 			w.WriteHeader(http.StatusCreated)
 		}))
 		defer func() { mockServer.Close() }()
-		client := constructClient(&discord.Credentials{}, mockServer.URL, apiVersion)
+		client := constructClient(&discord.Credentials{}, mockServer.URL, discord.APIVersion)
 
 		err := client.create("", &discord.ApplicationCommand{})
 		require.NoError(t, err)
@@ -127,7 +126,7 @@ func TestCreate(t *testing.T) {
 			w.WriteHeader(http.StatusCreated)
 		}))
 		defer func() { mockServer.Close() }()
-		client := constructClient(&discord.Credentials{}, mockServer.URL, apiVersion)
+		client := constructClient(&discord.Credentials{}, mockServer.URL, discord.APIVersion)
 
 		err := client.create("12345", &discord.ApplicationCommand{})
 		require.NoError(t, err)
@@ -137,7 +136,7 @@ func TestCreate(t *testing.T) {
 			w.WriteHeader(http.StatusUnauthorized)
 		}))
 		defer func() { mockServer.Close() }()
-		client := constructClient(&discord.Credentials{}, mockServer.URL, apiVersion)
+		client := constructClient(&discord.Credentials{}, mockServer.URL, discord.APIVersion)
 
 		err := client.create("12345", &discord.ApplicationCommand{})
 		require.Error(t, err)
@@ -147,18 +146,18 @@ func TestCreate(t *testing.T) {
 			w.WriteHeader(http.StatusOK)
 		}))
 		defer func() { mockServer.Close() }()
-		client := constructClient(&discord.Credentials{}, mockServer.URL, apiVersion)
+		client := constructClient(&discord.Credentials{}, mockServer.URL, discord.APIVersion)
 
 		err := client.create("12345", &discord.ApplicationCommand{})
 		require.Error(t, err)
-		require.Equal(t, err, errs.ErrAlreadyExists)
+		require.Equal(t, err, ErrAlreadyExists)
 	})
 	t.Run("failure/internal server error", func(t *testing.T) {
 		mockServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
 			w.WriteHeader(http.StatusInternalServerError)
 		}))
 		defer func() { mockServer.Close() }()
-		client := constructClient(&discord.Credentials{}, mockServer.URL, apiVersion)
+		client := constructClient(&discord.Credentials{}, mockServer.URL, discord.APIVersion)
 
 		err := client.create("12345", &discord.ApplicationCommand{})
 		require.Error(t, err)
@@ -181,7 +180,7 @@ func TestRequest(t *testing.T) {
 			w.WriteHeader(http.StatusOK)
 		}))
 		defer func() { mockServer.Close() }()
-		client := constructClient(&discord.Credentials{}, mockServer.URL, apiVersion)
+		client := constructClient(&discord.Credentials{}, mockServer.URL, discord.APIVersion)
 
 		status, data, err := client.request(http.MethodGet, mockServer.URL, nil)
 		require.NoError(t, err)
@@ -206,21 +205,21 @@ func TestRequest(t *testing.T) {
 			w.WriteHeader(http.StatusOK)
 		}))
 		defer func() { mockServer.Close() }()
-		client := constructClient(&discord.Credentials{}, mockServer.URL, apiVersion)
+		client := constructClient(&discord.Credentials{}, mockServer.URL, discord.APIVersion)
 
 		_, _, err := client.request(http.MethodGet, mockServer.URL, nil)
 		require.Error(t, err)
-		require.Equal(t, errs.ErrMaxRetries, err)
+		require.Equal(t, ErrMaxRetries, err)
 	})
 	t.Run("failure/forbidden", func(t *testing.T) {
 		mockServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
 			w.WriteHeader(http.StatusForbidden)
 		}))
 		defer func() { mockServer.Close() }()
-		client := constructClient(&discord.Credentials{}, mockServer.URL, apiVersion)
+		client := constructClient(&discord.Credentials{}, mockServer.URL, discord.APIVersion)
 
 		_, _, err := client.request(http.MethodGet, mockServer.URL, nil)
 		require.Error(t, err)
-		require.Equal(t, errs.ErrForbidden, err)
+		require.Equal(t, ErrForbidden, err)
 	})
 }

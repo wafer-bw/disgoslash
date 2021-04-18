@@ -2,7 +2,7 @@ package disgoslash_test
 
 import (
 	"github.com/wafer-bw/disgoslash"
-	discord "github.com/wafer-bw/disgoslash/discord"
+	"github.com/wafer-bw/disgoslash/discord"
 )
 
 func ExampleSyncer_Sync() {
