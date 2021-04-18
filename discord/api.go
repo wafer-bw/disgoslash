@@ -6,11 +6,14 @@ import "time"
 // Discord will error out the command if it takes more than 3 seconds.
 const MaxResponseTime = 3 * time.Second
 
-// BaseURL is the base Discord API url used by this package
+// BaseURL of the Discord API used by this package
 const BaseURL string = "https://discord.com/api"
 
-// APIVersion is the Discord API version used by this package
+// APIVersion of the Discord API used by this package
 const APIVersion string = "v8"
+
+// ContentType expected by the Discord API
+const ContentType string = "application/json"
 
 // Credentials required from your Discord application & bot
 type Credentials struct {

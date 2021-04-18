@@ -123,6 +123,7 @@ func (handler *Handler) respond(resp response) {
 	switch resp.err {
 	case nil:
 		if _, err := resp.w.Write(resp.body); resp.err != nil {
+			resp.w.Header().Set("Content-Type", discord.ContentType)
 			handler.respond(response{w: resp.w, body: nil, err: err})
 		}
 	case ErrInvalidInteractionType:
