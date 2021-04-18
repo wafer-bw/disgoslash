@@ -11,7 +11,6 @@ import (
 	"time"
 
 	"github.com/wafer-bw/disgoslash/discord"
-	"github.com/wafer-bw/disgoslash/errs"
 )
 
 // Handler is used to handle Discord slash command interaction requests.
@@ -87,7 +86,7 @@ func (handler *Handler) resolve(r *http.Request) (*discord.InteractionRequest, e
 	}
 
 	if !verify(body, r.Header, handler.Creds.PublicKey) {
-		return nil, errs.ErrUnauthorized
+		return nil, ErrUnauthorized
 	}
 
 	return handler.unmarshal(body)
@@ -100,18 +99,18 @@ func (handler *Handler) execute(interaction *discord.InteractionRequest) (*disco
 	case discord.InteractionTypeApplicationCommand:
 		return handler.doAction(interaction)
 	default:
-		return nil, errs.ErrInvalidInteractionType
+		return nil, ErrInvalidInteractionType
 	}
 }
 
 func (handler *Handler) doAction(interaction *discord.InteractionRequest) (*discord.InteractionResponse, error) {
 	slashCommand, ok := handler.SlashCommandMap[interaction.Data.Name]
 	if !ok {
-		return nil, errs.ErrNotImplemented
+		return nil, ErrNotImplemented
 	}
 	response := slashCommand.Action(interaction)
 	if response == nil {
-		return nil, errs.ErrNilInteractionResponse
+		return nil, ErrNilInteractionResponse
 	}
 	return response, nil
 }
@@ -126,11 +125,11 @@ func (handler *Handler) respond(resp response) {
 		if _, err := resp.w.Write(resp.body); resp.err != nil {
 			handler.respond(response{w: resp.w, body: nil, err: err})
 		}
-	case errs.ErrInvalidInteractionType:
+	case ErrInvalidInteractionType:
 		http.Error(resp.w, resp.err.Error(), http.StatusBadRequest)
-	case errs.ErrUnauthorized:
+	case ErrUnauthorized:
 		http.Error(resp.w, resp.err.Error(), http.StatusUnauthorized)
-	case errs.ErrNotImplemented:
+	case ErrNotImplemented:
 		http.Error(resp.w, resp.err.Error(), http.StatusNotImplemented)
 	default:
 		http.Error(resp.w, resp.err.Error(), http.StatusInternalServerError)

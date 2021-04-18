@@ -1,5 +1,9 @@
 package discord
 
+import (
+	"encoding/json"
+)
+
 // https://discord.com/developers/docs/interactions/slash-commands
 
 // InteractionRequest - The base request model sent when a user invokes a command
@@ -34,8 +38,10 @@ type InteractionResponseType int
 
 // InteractionResponseType Enum
 const (
-	InteractionResponseTypePong                     InteractionResponseType = 1
-	InteractionResponseTypeAcknowledge              InteractionResponseType = 2
+	InteractionResponseTypePong InteractionResponseType = 1
+	// InteractionResponseTypeAcknowledge has been deprecated by Discord
+	InteractionResponseTypeAcknowledge InteractionResponseType = 2
+	// InteractionResponseTypeChannelMessage has been deprecated by Discord
 	InteractionResponseTypeChannelMessage           InteractionResponseType = 3
 	InteractionResponseTypeChannelMessageWithSource InteractionResponseType = 4
 	InteractionResponseTypeAcknowledgeWithSource    InteractionResponseType = 5
@@ -59,8 +65,80 @@ type ApplicationCommandInteractionData struct {
 // ApplicationCommandInteractionDataOption - The params + values from the user
 type ApplicationCommandInteractionDataOption struct {
 	Name    string                                     `json:"name"`
-	Value   string                                     `json:"value"`
+	Value   json.RawMessage                            `json:"value"`
 	Options []*ApplicationCommandInteractionDataOption `json:"options"`
+}
+
+// GetString returns the unmarshalled Value of the option as a string pointer,
+// if the Value was null in the source JSON it will the pointer will be nil.
+//
+// This exists for clarity and should be used when the interaction's
+// corresponding ApplicationCommandOptionType is ApplicationCommandOptionTypeString
+// in which case the Discord API will send a string Value in the interaction request
+func (option ApplicationCommandInteractionDataOption) GetString() (*string, error) {
+	val := new(string)
+	if err := json.Unmarshal(option.Value, val); err != nil {
+		return nil, err
+	}
+	return val, nil
+}
+
+// GetInt returns the unmarshalled Value of the option as an int pointer,
+// if the Value was null in the source JSON it will the pointer will be nil.
+//
+// This exists for clarity and should be used when the interaction's
+// corresponding ApplicationCommandOptionType is ApplicationCommandOptionTypeInteger
+// in which case the Discord API will send an int Value in the interaction request
+func (option ApplicationCommandInteractionDataOption) GetInt() (*int, error) {
+	val := new(int)
+	if err := json.Unmarshal(option.Value, val); err != nil {
+		return nil, err
+	}
+	return val, nil
+}
+
+// GetBool returns the unmarshalled Value of the option as a bool pointer,
+// if the Value was null in the source JSON it will the pointer will be nil.
+//
+// This exists for clarity and should be used when the interaction's
+// correspoinding ApplicationCommandOptionType is ApplicationCommandOptionTypeBoolean
+// in which case the Discord API will send a bool Value in the interaction request
+func (option ApplicationCommandInteractionDataOption) GetBool() (*bool, error) {
+	val := new(bool)
+	if err := json.Unmarshal(option.Value, val); err != nil {
+		return nil, err
+	}
+	return val, nil
+}
+
+// GetUserID is an alias for ApplicationCommandInteractionDataOption.GetString
+// returning the unmarshalled Value of the option as a string pointer.
+//
+// This exists for clarity and should be used when the interaction's
+// correspoinding ApplicationCommandOptionType is ApplicationCommandOptionTypeUser
+// in which case the Discord API will send the User ID as a string Value in the interaction request
+func (option ApplicationCommandInteractionDataOption) GetUserID() (*string, error) {
+	return option.GetString()
+}
+
+// GetRoleID is an alias for ApplicationCommandInteractionDataOption.GetString
+// returning the unmarshalled Value of the option as a string pointer.
+//
+// This exists for clarity and should be used when the interaction's
+// correspoinding ApplicationCommandOptionType is ApplicationCommandOptionTypeRole
+// in which case the Discord API will send the Role ID as a string Value in the interaction request
+func (option ApplicationCommandInteractionDataOption) GetRoleID() (*string, error) {
+	return option.GetString()
+}
+
+// GetChannelID is an alias for ApplicationCommandInteractionDataOption.GetString
+// returning the unmarshalled Value of the option as a string pointer.
+//
+// This exists for clarity and should be used when the interaction's
+// correspoinding ApplicationCommandOptionType is ApplicationCommandOptionTypeChannel
+// in which case the Discord API will send the Channel ID as a string Value in the interaction request
+func (option ApplicationCommandInteractionDataOption) GetChannelID() (*string, error) {
+	return option.GetString()
 }
 
 // AllowedMentionType - The type of allowed mention
@@ -75,11 +153,12 @@ const (
 
 // ApplicationCommand - The base commmand model that belongs to an application
 type ApplicationCommand struct {
-	ID            string                      `json:"id"`
-	ApplicationID string                      `json:"application_id"`
-	Name          string                      `json:"name"`        // 1-32 character name matching ^[\w-]{1,32}$
-	Description   string                      `json:"description"` // 1-100 character description
-	Options       []*ApplicationCommandOption `json:"options"`     // the parameters for the command
+	ID                string                      `json:"id"`
+	ApplicationID     string                      `json:"application_id"`
+	Name              string                      `json:"name"`               // 1-32 character name matching ^[\w-]{1,32}$
+	Description       string                      `json:"description"`        // 1-100 character description
+	Options           []*ApplicationCommandOption `json:"options"`            // the parameters for the command
+	DefaultPermission bool                        `json:"default_permission"` // whether the command is enabled by default when the app is added to a guild (defaults to true)
 }
 
 // ApplicationCommandOption - The parameters for the command
@@ -93,9 +172,10 @@ type ApplicationCommandOption struct {
 }
 
 // ApplicationCommandOptionChoice - User choice for `string` and/or `int` type options
+// Value will always be unmarshalled as a string.
 type ApplicationCommandOptionChoice struct {
 	Name  string `json:"name"`
-	Value string `json:"value"`
+	Value string `json:"value,string"`
 }
 
 // ApplicationCommandOptionType - Types of command options
@@ -111,4 +191,26 @@ const (
 	ApplicationCommandOptionTypeUser            ApplicationCommandOptionType = 6
 	ApplicationCommandOptionTypeChannel         ApplicationCommandOptionType = 7
 	ApplicationCommandOptionTypeRole            ApplicationCommandOptionType = 8
+)
+
+type GuildApplicationCommandPermissions struct {
+	ID            string          `json:"id"`             // the id of the command
+	ApplicationID string          `json:"application_id"` // the id of the application the command belongs to
+	GuildID       string          `json:"guild_id"`       // the id of the guild
+	Permissions   json.RawMessage `json:"permissions"`    // the permissions for the command in the guild
+}
+
+type ApplicationCommandPermissions struct {
+	ID         string      `json:"id"`         // the id of the role or user
+	Type       interface{} `json:"type"`       // role or user
+	Permission bool        `json:"permission"` // true to allow, false to disallow
+}
+
+// ApplicationCommandPermissionType - Types of application command permissions
+type ApplicationCommandPermissionType int
+
+// ApplicationCommandPermissionType Enum
+const (
+	ApplicationCommandPermissionTypeSubRole ApplicationCommandPermissionType = 1
+	ApplicationCommandPermissionTypeSubUser ApplicationCommandPermissionType = 2
 )

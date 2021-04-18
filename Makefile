@@ -3,6 +3,7 @@ get:
 .PHONY: get
 
 mocks:
+	rm client_mock.go
 	mockery --name "clientInterface" --structname "mockClientInterface" --filename "client_mock.go" --inpackage
 .PHONY: mocks
 

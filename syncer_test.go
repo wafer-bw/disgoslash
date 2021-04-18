@@ -5,10 +5,17 @@ import (
 
 	"github.com/stretchr/testify/require"
 	"github.com/wafer-bw/disgoslash/discord"
-	"github.com/wafer-bw/disgoslash/errs"
 )
 
 func TestSync(t *testing.T) {
+	testResponse := &discord.InteractionResponse{
+		Type: discord.InteractionResponseTypeChannelMessageWithSource,
+		Data: &discord.InteractionApplicationCommandCallbackData{Content: "Hello World!"},
+	}
+	do := func(request *discord.InteractionRequest) *discord.InteractionResponse {
+		return testResponse
+	}
+
 	applicationCommands := []*discord.ApplicationCommand{
 		{ID: "A", Name: "testCommandA", Description: "desc"},
 		{ID: "B", Name: "testCommandB", Description: "desc"},
@@ -41,14 +48,14 @@ func TestSync(t *testing.T) {
 
 		mockClient.On("list", "").Return([]*discord.ApplicationCommand{applicationCommands[0]}, nil).Times(1)
 		mockClient.On("list", "12345").Return([]*discord.ApplicationCommand{applicationCommands[0]}, nil).Times(1)
-		mockClient.On("list", "67890").Return(nil, errs.ErrForbidden).Times(1)
+		mockClient.On("list", "67890").Return(nil, ErrForbidden).Times(1)
 
-		mockClient.On("delete", "", "A").Return(errs.ErrMaxRetries).Times(1)
+		mockClient.On("delete", "", "A").Return(ErrMaxRetries).Times(1)
 		mockClient.On("delete", "12345", "A").Return(nil).Times(1)
 
 		mockClient.On("create", "", applicationCommands[0]).Return(nil).Times(1)
 		mockClient.On("create", "12345", applicationCommands[0]).Return(nil).Times(1)
-		mockClient.On("create", "67890", applicationCommands[1]).Return(errs.ErrForbidden).Times(1)
+		mockClient.On("create", "67890", applicationCommands[1]).Return(ErrForbidden).Times(1)
 
 		errs := syncer.Sync()
 		require.Equal(t, 3, len(errs))
