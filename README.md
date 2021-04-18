@@ -99,7 +99,7 @@ The following secrets you have collected above should not be tracked in version 
 5. After saving those changes you should see a green bar with a message like "All your edits have been carefully recorded."
 
 #### Register Slash Command
-1. Move into the [`sync`](./sync) directory
+1. Change into the [`sync`](./sync) directory
     ```sh
     cd sync
     ```
