@@ -10,16 +10,11 @@ var anotherSlashCommand disgoslash.SlashCommand
 var slashCommandMap disgoslash.SlashCommandMap
 
 func action(request *discord.InteractionRequest) *discord.InteractionResponse {
-	var msg string
-	if username, err := request.Data.Options[0].GetString(); err != nil {
-		msg = "Error: " + err.Error()
-	} else {
-		msg = "Hello " + *username + "!"
-	}
+	name, _ := request.Data.Options[0].StringValue()
 	return &discord.InteractionResponse{
 		Type: discord.InteractionResponseTypeChannelMessageWithSource,
 		Data: &discord.InteractionApplicationCommandCallbackData{
-			Content: msg,
+			Content: "Hello " + name + "!",
 		},
 	}
 }

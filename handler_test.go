@@ -136,9 +136,9 @@ func TestUnmarshal(t *testing.T) {
 
 		interactionRequest, err := handler.unmarshal(interactionBytes)
 		require.NoError(t, err)
-		val, err := interactionRequest.Data.Options[0].GetString()
-		require.NoError(t, err)
-		require.Equal(t, optionVal, *val)
+		val, ok := interactionRequest.Data.Options[0].StringValue()
+		require.True(t, ok)
+		require.Equal(t, optionVal, val)
 	})
 	t.Run("success/unmarshal integer option", func(t *testing.T) {
 		optionName := "count"
@@ -158,16 +158,16 @@ func TestUnmarshal(t *testing.T) {
 		interaction := &discord.InteractionRequest{Data: &discord.ApplicationCommandInteractionData{
 			Name: commandName,
 			Options: []*discord.ApplicationCommandInteractionDataOption{
-				{Name: optionName, Value: json.RawMessage(fmt.Sprintf(`%d`, optionVal))},
+				{Name: optionName, Value: optionVal},
 			},
 		}}
 		interactionBytes, err := json.Marshal(interaction)
 		require.NoError(t, err)
 		interactionRequest, err := handler.unmarshal(interactionBytes)
 		require.NoError(t, err)
-		val, err := interactionRequest.Data.Options[0].GetInt()
-		require.NoError(t, err)
-		require.Equal(t, optionVal, *val)
+		val, ok := interactionRequest.Data.Options[0].IntValue()
+		require.True(t, ok)
+		require.Equal(t, optionVal, val)
 	})
 	t.Run("success/unmarshal bool option", func(t *testing.T) {
 		optionName := "enabled"
@@ -194,9 +194,9 @@ func TestUnmarshal(t *testing.T) {
 		require.NoError(t, err)
 		interactionRequest, err := handler.unmarshal(interactionBytes)
 		require.NoError(t, err)
-		val, err := interactionRequest.Data.Options[0].GetBool()
-		require.NoError(t, err)
-		require.Equal(t, optionVal, *val)
+		val, ok := interactionRequest.Data.Options[0].BoolValue()
+		require.True(t, ok)
+		require.Equal(t, optionVal, val)
 	})
 	t.Run("success/unmarshal user option", func(t *testing.T) {
 		optionName := "user"
@@ -222,9 +222,9 @@ func TestUnmarshal(t *testing.T) {
 		require.NoError(t, err)
 		interactionRequest, err := handler.unmarshal(interactionBytes)
 		require.NoError(t, err)
-		val, err := interactionRequest.Data.Options[0].GetUserID()
-		require.NoError(t, err)
-		require.Equal(t, optionVal, *val)
+		val, ok := interactionRequest.Data.Options[0].UserIDValue()
+		require.True(t, ok)
+		require.Equal(t, optionVal, val)
 	})
 	t.Run("success/unmarshal role option", func(t *testing.T) {
 		optionName := "role"
@@ -250,9 +250,9 @@ func TestUnmarshal(t *testing.T) {
 		require.NoError(t, err)
 		interactionRequest, err := handler.unmarshal(interactionBytes)
 		require.NoError(t, err)
-		val, err := interactionRequest.Data.Options[0].GetRoleID()
-		require.NoError(t, err)
-		require.Equal(t, optionVal, *val)
+		val, ok := interactionRequest.Data.Options[0].RoleIDValue()
+		require.True(t, ok)
+		require.Equal(t, optionVal, val)
 	})
 	t.Run("success/unmarshal channel option", func(t *testing.T) {
 		optionName := "channel"
@@ -278,9 +278,9 @@ func TestUnmarshal(t *testing.T) {
 		require.NoError(t, err)
 		interactionRequest, err := handler.unmarshal(interactionBytes)
 		require.NoError(t, err)
-		val, err := interactionRequest.Data.Options[0].GetChannelID()
-		require.NoError(t, err)
-		require.Equal(t, optionVal, *val)
+		val, ok := interactionRequest.Data.Options[0].ChannelIDValue()
+		require.True(t, ok)
+		require.Equal(t, optionVal, val)
 	})
 	t.Run("success/unmarshal subcommand option", func(t *testing.T) {
 		optionVal := "abc"
@@ -338,9 +338,9 @@ func TestUnmarshal(t *testing.T) {
 		require.NoError(t, err)
 		interactionRequest, err := handler.unmarshal(interactionBytes)
 		require.NoError(t, err)
-		val, err := interactionRequest.Data.Options[0].Options[0].GetString()
-		require.NoError(t, err)
-		require.Equal(t, optionVal, *val)
+		val, ok := interactionRequest.Data.Options[0].Options[0].StringValue()
+		require.True(t, ok)
+		require.Equal(t, optionVal, val)
 	})
 	t.Run("success/unmarshal subcommandgroup option", func(t *testing.T) {
 		optionVal := 123
@@ -410,9 +410,9 @@ func TestUnmarshal(t *testing.T) {
 		require.NoError(t, err)
 		interactionRequest, err := handler.unmarshal(interactionBytes)
 		require.NoError(t, err)
-		val, err := interactionRequest.Data.Options[0].Options[0].Options[0].GetInt()
-		require.NoError(t, err)
-		require.Equal(t, optionVal, *val)
+		val, ok := interactionRequest.Data.Options[0].Options[0].Options[0].IntValue()
+		require.True(t, ok)
+		require.Equal(t, optionVal, val)
 	})
 }
 

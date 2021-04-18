@@ -20,11 +20,11 @@ type User struct {
 }
 
 // PremiumType - The type of premium subscription
-type PremiumType int
+type PremiumType uint8
 
 // PremiumType Enum
 const (
-	PremiumTypeNone         PremiumType = 0
-	PremiumTypeNitroClassic PremiumType = 1
-	PremiumTypeNitro        PremiumType = 2
+	PremiumTypeNone PremiumType = iota
+	PremiumTypeNitroClassic
+	PremiumTypeNitro
 )
