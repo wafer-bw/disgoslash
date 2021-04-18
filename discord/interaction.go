@@ -155,10 +155,10 @@ const (
 type ApplicationCommand struct {
 	ID                string                      `json:"id"`
 	ApplicationID     string                      `json:"application_id"`
-	Name              string                      `json:"name"`               // 1-32 character name matching ^[\w-]{1,32}$
-	Description       string                      `json:"description"`        // 1-100 character description
-	Options           []*ApplicationCommandOption `json:"options"`            // the parameters for the command
-	DefaultPermission bool                        `json:"default_permission"` // whether the command is enabled by default when the app is added to a guild (defaults to true)
+	Name              string                      `json:"name"`                         // 1-32 character name matching ^[\w-]{1,32}$
+	Description       string                      `json:"description"`                  // 1-100 character description
+	Options           []*ApplicationCommandOption `json:"options"`                      // the parameters for the command
+	DefaultPermission bool                        `json:"default_permission,omitempty"` // whether the command is enabled by default when the app is added to a guild (defaults to true)
 }
 
 // ApplicationCommandOption - The parameters for the command
