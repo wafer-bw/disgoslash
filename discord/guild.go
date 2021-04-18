@@ -69,41 +69,41 @@ type GuildMember struct {
 }
 
 // MFALevel - The type of MFA Level
-type MFALevel int
+type MFALevel uint8
 
 // MFALevel Enum
 const (
-	MFALevelNone     MFALevel = 0
-	MFALevelElevated MFALevel = 1
+	MFALevelNone MFALevel = iota
+	MFALevelElevated
 )
 
 // VerificationLevel - The type of Verification Level
-type VerificationLevel int
+type VerificationLevel uint8
 
 // VerificationLevel Enum
 const (
-	VerificationLevelNone     VerificationLevel = 0
-	VerificationLevelLow      VerificationLevel = 1
-	VerificationLevelMedium   VerificationLevel = 2
-	VerificationLevelHigh     VerificationLevel = 3
-	VerificationLevelVeryHigh VerificationLevel = 4
+	VerificationLevelNone VerificationLevel = iota
+	VerificationLevelLow
+	VerificationLevelMedium
+	VerificationLevelHigh
+	VerificationLevelVeryHigh
 )
 
 // NotificationLevel - The type of Notification Level
-type NotificationLevel int
+type NotificationLevel uint8
 
 // NotificationLevel Enum
 const (
-	NotificationLevelAllMessages  NotificationLevel = 0
-	NotificationLevelOnlyMentions NotificationLevel = 1
+	NotificationLevelAllMessages NotificationLevel = iota
+	NotificationLevelOnlyMentions
 )
 
 // ExplicitContentFilterLevel - The type of Notification Level
-type ExplicitContentFilterLevel int
+type ExplicitContentFilterLevel uint8
 
 // ExplicitContentFilterLevel Enum
 const (
-	ExplicitContentFilterLevelDisabled            ExplicitContentFilterLevel = 0
-	ExplicitContentFilterLevelMembersWithoutRoles ExplicitContentFilterLevel = 1
-	ExplicitContentFilterLevelAllMembers          ExplicitContentFilterLevel = 2
+	ExplicitContentFilterLevelDisabled ExplicitContentFilterLevel = iota
+	ExplicitContentFilterLevelMembersWithoutRoles
+	ExplicitContentFilterLevelAllMembers
 )

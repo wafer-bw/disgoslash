@@ -19,7 +19,7 @@ type InteractionRequest struct {
 }
 
 // InteractionType - The type of the interaction
-type InteractionType uint
+type InteractionType uint8
 
 // InteractionType Enum
 const (
@@ -34,7 +34,7 @@ type InteractionResponse struct {
 }
 
 // InteractionResponseType - The type of the response
-type InteractionResponseType uint
+type InteractionResponseType uint8
 
 // InteractionResponseType Enum
 const (
@@ -144,7 +144,7 @@ type ApplicationCommandOptionChoice struct {
 }
 
 // ApplicationCommandOptionType - Types of command options
-type ApplicationCommandOptionType uint
+type ApplicationCommandOptionType uint8
 
 // ApplicationCommandOptionType Enum
 const (
@@ -172,7 +172,7 @@ type ApplicationCommandPermissions struct {
 }
 
 // ApplicationCommandPermissionType - Types of application command permissions
-type ApplicationCommandPermissionType uint
+type ApplicationCommandPermissionType uint8
 
 // ApplicationCommandPermissionType Enum
 const (
