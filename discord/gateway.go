@@ -1,12 +1,14 @@
 package discord
 
+import "encoding/json"
+
 // Presence - A user's current state on a guild
 type Presence struct {
-	User         User           `json:"user"`
-	GuildID      string         `json:"guild_id"`
-	Status       PresenceStatus `json:"status"`
-	Activities   []interface{}  `json:"activities"` // TODO - https://discord.com/developers/docs/topics/gateway#activity-object
-	ClientStatus ClientStatus   `json:"client_status"`
+	User         User            `json:"user"`
+	GuildID      string          `json:"guild_id"`
+	Status       PresenceStatus  `json:"status"`
+	Activities   json.RawMessage `json:"activities"` // TODO - https://discord.com/developers/docs/topics/gateway#activity-object
+	ClientStatus ClientStatus    `json:"client_status"`
 }
 
 // PresenceStatus - The type of PresenceStatus

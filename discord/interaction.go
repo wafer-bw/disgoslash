@@ -192,3 +192,25 @@ const (
 	ApplicationCommandOptionTypeChannel         ApplicationCommandOptionType = 7
 	ApplicationCommandOptionTypeRole            ApplicationCommandOptionType = 8
 )
+
+type GuildApplicationCommandPermissions struct {
+	ID            string          `json:"id"`             // the id of the command
+	ApplicationID string          `json:"application_id"` // the id of the application the command belongs to
+	GuildID       string          `json:"guild_id"`       // the id of the guild
+	Permissions   json.RawMessage `json:"permissions"`    // the permissions for the command in the guild
+}
+
+type ApplicationCommandPermissions struct {
+	ID         string      `json:"id"`         // the id of the role or user
+	Type       interface{} `json:"type"`       // role or user
+	Permission bool        `json:"permission"` // true to allow, false to disallow
+}
+
+// ApplicationCommandPermissionType - Types of application command permissions
+type ApplicationCommandPermissionType int
+
+// ApplicationCommandPermissionType Enum
+const (
+	ApplicationCommandPermissionTypeSubRole ApplicationCommandPermissionType = 1
+	ApplicationCommandPermissionTypeSubUser ApplicationCommandPermissionType = 2
+)
