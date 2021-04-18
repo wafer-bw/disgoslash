@@ -38,6 +38,7 @@ func ExampleNewSlashCommand() {
 				Required:    true,
 			},
 		},
+		DefaultPermission: true,
 	}
 
 	slashCommand = disgoslash.NewSlashCommand(applicationCommand, action, isGlobal, guildIDs)

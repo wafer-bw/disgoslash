@@ -1,5 +1,5 @@
 # disgoslash
-A Golang package that makes it easy to create serverless Discord slash command applications
+A Golang package that provides an easy way to create serverless Discord slash command applications
 
 ![tests](https://github.com/wafer-bw/disgoslash/workflows/tests/badge.svg)
 ![lint](https://github.com/wafer-bw/disgoslash/workflows/lint/badge.svg)

@@ -43,6 +43,7 @@ var command = &discord.ApplicationCommand{
 			Required:    true,
 		},
 	},
+	DefaultPermission: true,
 }
 
 // hello is where the code of the slash command lives
