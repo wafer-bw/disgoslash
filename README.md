@@ -13,7 +13,7 @@ go get github.com/wafer-bw/disgoslash
 ```
 
 ## Getting Started
-This small example project uses [Vercel serverless functions](https://vercel.com/docs/serverless-functions/supported-languages#go) to execute and respond to a Discord slash command.
+The following guide shows how to use `disgoslash` with [Vercel serverless functions](https://vercel.com/docs/serverless-functions/supported-languages#go) to execute and respond to a Discord slash command.
 
 ### Prerequisites
 * [Golang](https://golang.org/dl/)
