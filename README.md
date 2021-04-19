@@ -52,7 +52,7 @@ environment variables and/or secrets within your code to protect your applicatio
 4. In the "Add to Server" dropdown select the server you created above.
 
 #### Add Secrets
-The following secrets you have collected above should not be tracked in version control:
+The following secrets you have collected above should not be tracked in version control:  
     * `Client ID`
     * `Public Key`
     * `Token`
