@@ -131,7 +131,7 @@ In your discord server type `/hello`, press tab, enter a name, then hit enter. T
 ## Outstanding Features
 - [ ] Stable release version
 - [ ] Internal client does not have an Edit method, it only uses Discord's create and delete endpoints right now
-- [ ] Support application command permissions
+- [ ] Support for syncing application command permissions
 - [ ] Some models in [./discord](./discord) are not translated to Go structs yet
 - [ ] Exporter to export ApplicationCommands to JSON files
 - [ ] CLI tool to list, delete, create, update application commands
