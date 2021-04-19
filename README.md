@@ -52,10 +52,11 @@ environment variables and/or secrets within your code to protect your applicatio
 4. In the "Add to Server" dropdown select the server you created above.
 
 #### Add Secrets
-The following secrets you have collected above should not be tracked in version control:  
-    * `Client ID`
-    * `Public Key`
-    * `Token`
+The following secrets you have collected above should not be tracked in version control:
+* `Client ID`
+* `Public Key`
+* `Token`
+
 1. Open [examples/vercel/api/index.go](./examples/vercel/api/index.go)
 2. Fill in the secrets from above by making the following replacements
     * `CLIENT_ID` -> Your application `Client ID`
